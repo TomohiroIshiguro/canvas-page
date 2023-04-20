@@ -1,0 +1,14 @@
+#row {
+  display: flex;
+  justify-content: flex-start;
+}
+main {
+  width: 900px;
+}
+aside {
+  margin-left: 10px;
+  flex-grow: 1;
+}
+canvas {
+  background: #fffff0;
+}

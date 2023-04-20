@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Canvas tutorial</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+
+  <body onload="draw();showForms();">
+    <h1>Canvas page</h1>
+    <p>以下の背景色が黄色い領域が Canvas です。</p>
+
+    <div id="row">
+      <main>
+        <canvas id="tutorial"></canvas>
+        <div>
+          <label>編集: </label>
+          <button onclick="addH1();">見出し 1</button>
+          <button onclick="addH2();">見出し 2</button>
+          <button onclick="addRect();">本文</button>
+          <button onclick="addImage();">静止画</button>
+          <button onclick="addVideoPlayer();">動画</button>
+          <label>スタンプ: </label>
+          <button onclick="addSmileStamp();">スマイル</button>
+          <button onclick="addDoneStamp();">済み</button>
+          <label>再描画: </label>
+          <button onclick="drawInitial();">初期値</button>
+          <button onclick="drawEdited();">編集中</button>
+          <label>初期化: </label>
+          <button onclick="resetEdited();">リセット</button>
+        </div>
+      </main>
+      <aside id="config-forms"></aside>
+    </div>
+
+    <script src="./layout-canvas.js"></script>
+    <script src="./aside-forms.js"></script>
+    <script src="./canvas-data.js"></script>
+  </body>
+</html>
