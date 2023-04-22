@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="./style.css" />
   </head>
 
-  <body onload="draw();showForms();">
+  <body onload="main();">
     <h1>Canvas page</h1>
     <p>以下の背景色が黄色い領域が Canvas です。</p>
 
@@ -15,26 +15,41 @@
         <canvas id="tutorial"></canvas>
         <div>
           <label>編集: </label>
-          <button onclick="addH1();">見出し 1</button>
-          <button onclick="addH2();">見出し 2</button>
-          <button onclick="addRect();">本文</button>
-          <button onclick="addImage();">静止画</button>
-          <button onclick="addVideoPlayer();">動画</button>
+          <button onclick="canvasPage.addH1();">見出し 1</button>
+          <button onclick="canvasPage.addH2();">見出し 2</button>
+          <button onclick="canvasPage.addRect();">本文</button>
+          <button onclick="canvasPage.addImage();">静止画</button>
+          <button onclick="canvasPage.addVideoPlayer();">動画</button>
           <label>スタンプ: </label>
-          <button onclick="addSmileStamp();">スマイル</button>
-          <button onclick="addDoneStamp();">済み</button>
+          <button onclick="canvasPage.addSmileStamp();">スマイル</button>
+          <button onclick="canvasPage.addDoneStamp();">済み</button>
           <label>再描画: </label>
-          <button onclick="drawInitial();">初期値</button>
-          <button onclick="drawEdited();">編集中</button>
+          <button onclick="canvasPage.drawInitial();">初期値</button>
+          <button onclick="canvasPage.drawEdited();">編集中</button>
           <label>初期化: </label>
-          <button onclick="resetEdited();">リセット</button>
+          <button onclick="canvasPage.resetEdited();">リセット</button>
         </div>
       </main>
       <aside id="config-forms"></aside>
     </div>
 
-    <script src="./layout-canvas.js"></script>
+    <script>
+      var canvasPage;
+      var sideForms;
+
+      function main() {
+        // ページ描画
+        canvasPage = new CanvasPage(initial, stamps_initial);
+        canvasPage.draw();
+        // 編集エリア生成
+        sideForms = new SideForms(canvasPage);
+        sideForms.showForms();
+        canvasPage.setSideForms(sideForms);
+      }
+    </script>
+    <script src="./canvas-page.js"></script>
     <script src="./aside-forms.js"></script>
-    <script src="./canvas-data.js"></script>
+    <script src="./constants.js"></script>
+    <script src="./sample-data.js"></script>
   </body>
 </html>

@@ -75,18 +75,6 @@ const stamps_initial = {
   stamps: [],
 };
 
-// 編集中の値
-// ----------------------------------------
-
-var draft = JSON.parse(JSON.stringify(initial));
-var stamps_draft = JSON.parse(JSON.stringify(stamps_initial));
-
-// Canvas に描画する値
-// ----------------------------------------
-
-var data = draft;
-var stamps_data = stamps_draft;
-
 // スタンプ デザイン
 // ----------------------------------------
 
