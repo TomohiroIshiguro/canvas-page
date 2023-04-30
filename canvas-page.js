@@ -71,23 +71,12 @@ class CanvasPage {
             this.#drawText(ctx, r, FONT_BLACK);
             this.#resetRectPosition(i);
           }
-          // DEBUG
-          const rectangle = new Path2D();
-          rectangle.rect(r.rect.x, r.rect.y, r.rect.w, r.rect.h);
-          if (r.fill) ctx.fillStyle = r.fill; // 罫線のスタイル
-          if (r.stroke) ctx.strokeStyle = r.stroke; // 罫線のスタイル
-          if (r.alpha) ctx.globalAlpha = r.alpha; // 透明色のスタイル
-          ctx.stroke(rectangle);
+          this.#drawRectStroke(ctx, r); // DEBUG
         }
 
         if (r.rect && r.fill) {
           // 背景色をもつ矩形の場合
-          const rectangle = new Path2D();
-          rectangle.rect(r.rect.x, r.rect.y, r.rect.w, r.rect.h);
-          if (r.fill) ctx.fillStyle = r.fill; // 罫線のスタイル
-          if (r.stroke) ctx.strokeStyle = r.stroke; // 罫線のスタイル
-          if (r.alpha) ctx.globalAlpha = r.alpha; // 透明色のスタイル
-          ctx.fill(rectangle);
+          this.#drawFilledRect(ctx, r);
           if (r.text) {
             this.#drawText(ctx, r, FONT_WHITE);
           }
@@ -98,29 +87,7 @@ class CanvasPage {
       this.#stamps_data.stamps.map((c) => {
         // circle の 'c'
         if (c.arc) {
-          let circle = new Path2D();
-          c.arc.map((a) => {
-            // arc の 'a'
-            if (a.arc) {
-              circle.arc(a.x, a.y, a.w, a.h, a.arc, a.close);
-            } else {
-              circle.moveTo(a.x, a.y);
-            }
-          });
-          if (c.fill) ctx.fillStyle = c.fill; // 罫線のスタイル
-          if (c.stroke) ctx.strokeStyle = c.stroke; // 罫線のスタイル
-          if (c.alpha) ctx.globalAlpha = c.alpha; // 透明色のスタイル
-          ctx.stroke(circle);
-          // テキストを描画する
-          if (c.text) {
-            ctx.fillStyle = FONT_RED;
-            ctx.font = H1;
-            ctx.fillText(
-              c.text,
-              c.arc[0].x - (STAMP_SIZE + MARGIN) / 2,
-              c.arc[0].y + (STAMP_SIZE + MARGIN) / 2
-            );
-          }
+          this.#drawStamp(ctx, c);
         }
       });
     }
@@ -173,15 +140,19 @@ class CanvasPage {
   // テキストを描画する
   #drawText(ctx, r, fontColor) {
     ctx.fillStyle = fontColor;
-    if (r.heading == H1_TYPE) {
-      ctx.font = H1;
-      this.#drawTextArea(ctx, r, H1_SIZE);
-    } else if (r.heading == H2_TYPE) {
-      ctx.font = H2;
-      this.#drawTextArea(ctx, r, H2_SIZE);
-    } else {
-      ctx.font = DEFAULT;
-      this.#drawTextArea(ctx, r, DEFAULT_SIZE);
+    switch (r.heading) {
+      case H1_TYPE:
+        ctx.font = H1;
+        this.#drawTextArea(ctx, r, H1_SIZE);
+        break;
+      case H2_TYPE:
+        ctx.font = H2;
+        this.#drawTextArea(ctx, r, H2_SIZE);
+        break;
+      default:
+        ctx.font = DEFAULT;
+        this.#drawTextArea(ctx, r, DEFAULT_SIZE);
+        break;
     }
   }
   #drawTextArea(ctx, r, fontSize) {
@@ -231,6 +202,53 @@ class CanvasPage {
         r.text,
         parseInt(r.rect.x) + MARGIN,
         parseInt(r.rect.y) + fontSize
+      );
+    }
+  }
+
+  // 罫線のみの領域を描画する
+  #drawRectStroke(ctx, r) {
+    const rectangle = new Path2D();
+    rectangle.rect(r.rect.x, r.rect.y, r.rect.w, r.rect.h);
+    if (r.fill) ctx.fillStyle = r.fill; // 罫線のスタイル
+    if (r.stroke) ctx.strokeStyle = r.stroke; // 罫線のスタイル
+    if (r.alpha) ctx.globalAlpha = r.alpha; // 透明色のスタイル
+    ctx.stroke(rectangle);
+  }
+
+  // 背景を塗りつぶした領域を描画する
+  #drawFilledRect(ctx, r) {
+    const rectangle = new Path2D();
+    rectangle.rect(r.rect.x, r.rect.y, r.rect.w, r.rect.h);
+    if (r.fill) ctx.fillStyle = r.fill; // 罫線のスタイル
+    if (r.stroke) ctx.strokeStyle = r.stroke; // 罫線のスタイル
+    if (r.alpha) ctx.globalAlpha = r.alpha; // 透明色のスタイル
+    ctx.fill(rectangle);
+  }
+
+  // スタンプを描画する
+  #drawStamp(ctx, c) {
+    let circle = new Path2D();
+    c.arc.map((a) => {
+      // arc の 'a'
+      if (a.arc) {
+        circle.arc(a.x, a.y, a.w, a.h, a.arc, a.close);
+      } else {
+        circle.moveTo(a.x, a.y);
+      }
+    });
+    if (c.fill) ctx.fillStyle = c.fill; // 罫線のスタイル
+    if (c.stroke) ctx.strokeStyle = c.stroke; // 罫線のスタイル
+    if (c.alpha) ctx.globalAlpha = c.alpha; // 透明色のスタイル
+    ctx.stroke(circle);
+    // テキストを描画する
+    if (c.text) {
+      ctx.fillStyle = FONT_RED;
+      ctx.font = H1;
+      ctx.fillText(
+        c.text,
+        c.arc[0].x - (STAMP_SIZE + MARGIN) / 2,
+        c.arc[0].y + (STAMP_SIZE + MARGIN) / 2
       );
     }
   }
