@@ -45,6 +45,11 @@
         sideForms = new SideForms(canvasPage);
         sideForms.showForms();
         canvasPage.setSideForms(sideForms);
+
+        window.addEventListener("resize", () => {
+          sideForms = new SideForms(canvasPage);
+          sideForms.showForms();
+        });
       }
     </script>
     <script src="./canvas-page.js"></script>
