@@ -65,7 +65,7 @@ const initial = {
     {
       rect: { x: 0, y: 798, w: 900, h: 124 },
       stroke: "rgb(200, 0, 0)",
-      text: "- index.html ... ページ、初期値データ\n- layout-canvas.html ... 初期値/編集後データを元に canvasへ図形・文字を描画する\n- aside-forms.html ... 初期値/編集後データを元に、サイドにフォームを描画する\n- canvas-data.js ... 初期値/編集後データ\n- style.css ... ページのスタイル",
+      text: "- index.html ... ページ、初期値データ\n- style.css ... ページのスタイル\n- canvas-page.js ... 初期値/編集後データを元に canvasへ図形・文字を描画する\n- aside-forms.js ... 初期値/編集後データを元に、サイドにフォームを描画する\n- sample-data.js ... 初期値/編集後データ",
     },
   ],
 };
