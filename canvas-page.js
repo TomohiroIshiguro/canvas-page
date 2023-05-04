@@ -271,6 +271,9 @@ class CanvasPage {
   // ----------------------------------------
   // H1 見出しブロックを追加する
   addH1() {
+    if (!this.#isEditing) {
+      return;
+    }
     const y = this.calcRectHeight(this.#draft.sections.length);
     this.#draft.sections.push({
       heading: H1_TYPE,
@@ -282,6 +285,9 @@ class CanvasPage {
   }
   // H2 見出しブロックを追加する
   addH2() {
+    if (!this.#isEditing) {
+      return;
+    }
     const y = this.calcRectHeight(this.#draft.sections.length);
     this.#draft.sections.push({
       heading: H2_TYPE,
@@ -293,6 +299,9 @@ class CanvasPage {
   }
   // 本文ブロックを追加する
   addRect() {
+    if (!this.#isEditing) {
+      return;
+    }
     const y = this.calcRectHeight(this.#draft.sections.length);
     this.#draft.sections.push({
       text: "content",
@@ -304,6 +313,9 @@ class CanvasPage {
 
   // 動画プレーヤーブロックを追加する
   addImage() {
+    if (!this.#isEditing) {
+      return;
+    }
     const y = this.calcRectHeight(this.#draft.sections.length);
     this.#draft.sections.push({
       text: "image placeholder",
@@ -315,6 +327,9 @@ class CanvasPage {
   }
   // 動画プレーヤーブロックを追加する
   addVideoPlayer() {
+    if (!this.#isEditing) {
+      return;
+    }
     const y = this.calcRectHeight(this.#draft.sections.length);
     this.#draft.sections.push({
       text: "video player placeholder",
@@ -327,11 +342,17 @@ class CanvasPage {
 
   // スタンプ (スマイル) を追加する
   addSmileStamp() {
+    if (!this.#isEditing) {
+      return;
+    }
     this.#stamps_draft.stamps.push({ arc: SMILE_MARK_STAMP, stroke: FONT_RED });
     this.drawEdited();
   }
   // スタンプ (済み) を追加する
   addDoneStamp() {
+    if (!this.#isEditing) {
+      return;
+    }
     this.#stamps_draft.stamps.push({
       text: "済",
       arc: DONE_MARK_STAMP,
@@ -342,6 +363,9 @@ class CanvasPage {
 
   // 編集内容をリセットする
   resetEdited() {
+    if (!this.#isEditing) {
+      return;
+    }
     // レイアウト
     this.#draft = JSON.parse(JSON.stringify(this.#initial));
     this.#data = this.#draft;
@@ -354,6 +378,9 @@ class CanvasPage {
   // Canvas へ data を再描画する
   // ----------------------------------------
   drawInitial() {
+    if (!this.#isEditing) {
+      return;
+    }
     document.getElementById("tutorial").getContext("2d").reset();
     this.#data = this.#initial;
     this.#stamps_data = this.#stamps_initial;
@@ -363,6 +390,9 @@ class CanvasPage {
     }
   }
   drawEdited() {
+    if (!this.#isEditing) {
+      return;
+    }
     document.getElementById("tutorial").getContext("2d").reset();
     this.#data = this.#draft;
     this.#stamps_data = this.#stamps_draft;
