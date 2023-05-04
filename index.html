@@ -8,12 +8,25 @@
 
   <body onload="main();">
     <h1>Canvas page</h1>
-    <p>以下の背景色が黄色い領域が Canvas です。</p>
+    <p>
+      以下の背景色が黄色い領域が Canvas です。<br />
+      <label>モード:</label>
+      <input
+        type="radio"
+        id="m_view"
+        name="mode"
+        value="view"
+        checked="checked"
+      />
+      <label for="m_view">閲覧</label>
+      <input type="radio" id="m_edit" name="mode" value="edit" />
+      <label for="m_edit">編集</label>
+    </p>
 
     <div id="row">
       <main>
         <canvas id="tutorial"></canvas>
-        <div>
+        <div id="elements-control-bar">
           <label>編集: </label>
           <button onclick="canvasPage.addH1();">見出し 1</button>
           <button onclick="canvasPage.addH2();">見出し 2</button>
@@ -39,15 +52,29 @@
 
       function main() {
         // ページ描画
-        canvasPage = new CanvasPage(initial, stamps_initial);
+        let isEditing = false;
+        canvasPage = new CanvasPage(initial, stamps_initial, isEditing);
         canvasPage.draw();
         // 編集エリア生成
         sideForms = new SideForms(canvasPage);
         sideForms.showForms();
         canvasPage.setSideForms(sideForms);
 
+        // モードを切り替えた場合
+        const radios = document.querySelectorAll(
+          "input[type='radio'][name='mode']"
+        );
+        for (el of radios) {
+          el.addEventListener("change", (e) => {
+            isEditing = e.target.value == "edit";
+            canvasPage.setIsEditing(isEditing);
+            canvasPage.draw();
+            sideForms.showForms();
+          });
+        }
+
+        // ウィンドウサイズが変化した場合
         window.addEventListener("resize", () => {
-          sideForms = new SideForms(canvasPage);
           sideForms.showForms();
         });
       }

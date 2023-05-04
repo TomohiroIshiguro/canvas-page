@@ -12,7 +12,7 @@ canvas {
 
 #row {
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
 }
 main {
   width: 900px;

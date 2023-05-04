@@ -3,6 +3,8 @@ class CanvasPage {
   #canvas;
   #sideForms;
 
+  #isEditing;
+
   // 初期値、編集中の値
   #initial;
   #stamps_initial;
@@ -15,7 +17,9 @@ class CanvasPage {
 
   // コンストラクタ
   // ----------------------------------------
-  constructor(initial, stamps_initial) {
+  constructor(initial, stamps_initial, isEditing = false) {
+    this.#isEditing = isEditing;
+
     this.#initial = JSON.parse(JSON.stringify(initial));
     this.#stamps_initial = JSON.parse(JSON.stringify(stamps_initial));
 
@@ -30,6 +34,14 @@ class CanvasPage {
 
   // Getter/Setter
   // ----------------------------------------
+  getIsEditing() {
+    return this.#isEditing;
+  }
+
+  setIsEditing(isEditing) {
+    this.#isEditing = isEditing;
+  }
+
   getDraft() {
     return this.#draft;
   }
@@ -71,7 +83,9 @@ class CanvasPage {
             this.#drawText(ctx, r, FONT_BLACK);
             this.#resetRectPosition(i);
           }
-          this.#drawRectStroke(ctx, r); // DEBUG
+          if (this.#isEditing) {
+            this.#drawRectStroke(ctx, r); // DEBUG
+          }
         }
 
         if (r.rect && r.fill) {

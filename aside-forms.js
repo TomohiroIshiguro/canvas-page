@@ -1,6 +1,7 @@
 class SideForms {
   #canvasPage;
   #aside;
+  #elementsControlBar;
 
   #isManual;
 
@@ -13,6 +14,7 @@ class SideForms {
   constructor(canvasPage) {
     this.#canvasPage = canvasPage;
     this.#aside = document.getElementById("config-forms");
+    this.#elementsControlBar = document.getElementById("elements-control-bar");
 
     this.#isManual = MANUAL_INITIAL;
     this.#asideWidth = 10; // px
@@ -23,11 +25,22 @@ class SideForms {
   // サイドバーにフォームをセットする
   // ----------------------------------------
   showForms() {
+    // 編集モードの時にボタンを動的に生成する
+    if (!this.#canvasPage.getIsEditing()) {
+      this.#aside.style.display = "none";
+      this.#elementsControlBar.style.display = "none";
+      return;
+    } else {
+      this.#aside.style.display = "block";
+      this.#elementsControlBar.style.display = "block";
+    }
+
     let draft = this.#canvasPage.getDraft();
 
     while (this.#aside.firstChild) {
       this.#aside.removeChild(this.#aside.firstChild);
     }
+
     this.#asideWidth = window.innerWidth - FULL_WIDTH - PADDING * 3; // px
     this.#textAreaWidth =
       this.#asideWidth -
