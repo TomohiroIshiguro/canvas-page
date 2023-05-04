@@ -315,6 +315,33 @@ class SideForms {
     configBlock.appendChild(heiBr);
   }
 
+  // type を編集した際の rect の高さ、後続の要素の描画位置をリセットする
+  #resetRectPosition(page, draft, index) {
+    if (!this.#canvasPage.getIsEditing()) {
+      return;
+    }
+    for (let i = parseInt(index) + 1; i < draft.sections.length; i++) {
+      if (
+        draft.sections[i - 1] &&
+        draft.sections[i].rect.y == draft.sections[i - 1].rect.y
+      ) {
+        // 2 カラムの場合
+        continue;
+      }
+
+      // ブロックの位置を修正する
+      const position = Math.ceil(page.calcRectHeight(i));
+      if (
+        draft.sections[i + 1] &&
+        draft.sections[i].rect.y == draft.sections[i + 1].rect.y
+      ) {
+        // 2 カラムの場合
+        draft.sections[i + 1].rect.y = position;
+      }
+      draft.sections[i].rect.y = position;
+    }
+  }
+
   // ラジオボタンの値の更新
   // ----------------------------------------
 
@@ -433,29 +460,5 @@ class SideForms {
 
     forms.#resetRectPosition(page, draft, index);
     page.drawEdited();
-  }
-
-  // type を編集した際の rect の高さ、後続の要素の描画位置をリセットする
-  #resetRectPosition(page, draft, index) {
-    for (let i = parseInt(index) + 1; i < draft.sections.length; i++) {
-      if (
-        draft.sections[i - 1] &&
-        draft.sections[i].rect.y == draft.sections[i - 1].rect.y
-      ) {
-        // 2 カラムの場合
-        continue;
-      }
-
-      // ブロックの位置を修正する
-      const position = Math.ceil(page.calcRectHeight(i));
-      if (
-        draft.sections[i + 1] &&
-        draft.sections[i].rect.y == draft.sections[i + 1].rect.y
-      ) {
-        // 2 カラムの場合
-        draft.sections[i + 1].rect.y = position;
-      }
-      draft.sections[i].rect.y = position;
-    }
   }
 }
