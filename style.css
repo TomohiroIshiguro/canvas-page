@@ -13,6 +13,7 @@ canvas {
 #row {
   display: flex;
   justify-content: center;
+  margin-bottom: 27px;
 }
 main {
   width: 900px;
@@ -20,4 +21,13 @@ main {
 aside {
   margin-left: 10px;
   flex-grow: 1;
+}
+
+#elements-control-bar {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background: white;
+  padding: 3px 10px;
 }

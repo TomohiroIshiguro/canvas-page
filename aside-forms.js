@@ -143,17 +143,17 @@ class SideForms {
     const heading_optionH1 = document.createElement("option");
     heading.appendChild(heading_optionH1);
     heading_optionH1.value = H1_TYPE;
-    heading_optionH1.text = H1_TYPE;
+    heading_optionH1.text = "見出し 1";
     // 選択肢 H2
     const heading_optionH2 = document.createElement("option");
     heading.appendChild(heading_optionH2);
     heading_optionH2.value = H2_TYPE;
-    heading_optionH2.text = H2_TYPE;
+    heading_optionH2.text = "見出し 2";
     // 選択肢 本文
     const heading_optionDefault = document.createElement("option");
     heading.appendChild(heading_optionDefault);
     heading_optionDefault.value = "";
-    heading_optionDefault.text = "DEFAULT";
+    heading_optionDefault.text = "本文";
 
     // (再)描画時の初期値セット
     switch (draft.sections[index].heading) {
