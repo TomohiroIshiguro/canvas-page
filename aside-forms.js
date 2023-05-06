@@ -117,9 +117,21 @@ class SideForms {
 
   // 図形の設定値用フォーム (罫線のみの矩形)
   #createRectStroke(configBlock, draft, index) {
-    const blockTitle = document.createElement("label");
+    const blockTitle = document.createElement("span");
     configBlock.appendChild(blockTitle);
-    const title = "Rectangle - " + draft.sections[index].text;
+    let title = "";
+    switch (draft.sections[index].heading) {
+      case H1_TYPE:
+        title += "■ H1 > ";
+        break;
+      case H2_TYPE:
+        title += "■■ H2 > ";
+        break;
+      default:
+        title += "本文 > ";
+        break;
+    }
+    title += draft.sections[index].text;
     blockTitle.innerHTML =
       title.length > 30 ? title.substring(0, 29) + "..." : title;
     blockTitle.style.display = "block";
@@ -143,12 +155,12 @@ class SideForms {
     const heading_optionH1 = document.createElement("option");
     heading.appendChild(heading_optionH1);
     heading_optionH1.value = H1_TYPE;
-    heading_optionH1.text = "見出し 1";
+    heading_optionH1.text = "見出し1";
     // 選択肢 H2
     const heading_optionH2 = document.createElement("option");
     heading.appendChild(heading_optionH2);
     heading_optionH2.value = H2_TYPE;
-    heading_optionH2.text = "見出し 2";
+    heading_optionH2.text = "見出し2";
     // 選択肢 本文
     const heading_optionDefault = document.createElement("option");
     heading.appendChild(heading_optionDefault);
@@ -193,19 +205,19 @@ class SideForms {
 
   // 図形の設定値用フォーム (背景色をもつ矩形)
   #createRectFilled(configBlock, draft, index) {
-    const blockTitle = document.createElement("label");
+    const blockTitle = document.createElement("span");
     configBlock.appendChild(blockTitle);
     blockTitle.innerHTML = "Rectangle";
     blockTitle.style.display = "block";
 
     // テキストを編集する入力欄
-    const textTitle = document.createElement("label");
+    const textTitle = document.createElement("span");
     configBlock.appendChild(textTitle);
     textTitle.innerHTML = "Text: ";
     textTitle.style.display = "inline-block";
     textTitle.style.width = CONFIG_ITEM_TITLE_WIDTH + "px";
     textTitle.style.margin = CONFIG_ITEM_MARGIN;
-    const text = document.createElement("label");
+    const text = document.createElement("span");
     configBlock.appendChild(text);
     text.innerHTML = draft.sections[index].text;
     const textBr = document.createElement("br");

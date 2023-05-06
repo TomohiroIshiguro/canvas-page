@@ -23,11 +23,19 @@ aside {
   flex-grow: 1;
 }
 
+label {
+  color: rgb(200, 0, 0);
+}
+
 #elements-control-bar {
   position: fixed;
   left: 0;
   bottom: 0;
   width: 100%;
-  background: white;
+  background: #dc143c;
   padding: 3px 10px;
+  text-align: center;
+}
+#elements-control-bar label {
+  color: white;
 }
