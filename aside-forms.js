@@ -4,8 +4,8 @@ class SideForms {
   #canvasObject;
 
   // 編集フォーム
-  #aside;
-  #elementsControlBar;
+  #asideObject;
+  #controlBarObject;
 
   #isManual;
 
@@ -17,15 +17,15 @@ class SideForms {
   #isEditing;
 
   #draft;
-  #stamps_draft;
+  #stampsDraft;
 
   // コンストラクタ
   // ----------------------------------------
-  constructor(canvasPage) {
+  constructor(canvasPage, aside, controlBar) {
     this.#canvasPage = canvasPage;
     this.#canvasObject = this.#canvasPage.getCanvasObject();
-    this.#aside = document.getElementById("config-forms");
-    this.#elementsControlBar = document.getElementById("elements-control-bar");
+    this.#asideObject = aside;
+    this.#controlBarObject = controlBar;
 
     this.#isManual = MANUAL_INITIAL;
     this.#asideWidth = 10; // px
@@ -39,19 +39,19 @@ class SideForms {
     // 編集モードの時にボタンを動的に生成する
     this.#isEditing = this.#canvasPage.getIsEditing();
     if (!this.#isEditing) {
-      this.#aside.style.display = "none";
-      this.#elementsControlBar.style.display = "none";
+      this.#asideObject.style.display = "none";
+      this.#controlBarObject.style.display = "none";
       return;
     } else {
-      this.#aside.style.display = "block";
-      this.#elementsControlBar.style.display = "block";
+      this.#asideObject.style.display = "block";
+      this.#controlBarObject.style.display = "block";
     }
 
     this.#draft = this.#canvasPage.getDraft();
-    this.#stamps_draft = this.#canvasPage.getStampsDraft();
+    this.#stampsDraft = this.#canvasPage.getStampsDraft();
 
-    while (this.#aside.firstChild) {
-      this.#aside.removeChild(this.#aside.firstChild);
+    while (this.#asideObject.firstChild) {
+      this.#asideObject.removeChild(this.#asideObject.firstChild);
     }
 
     this.#asideWidth = window.innerWidth - FULL_WIDTH - PADDING * 3; // px
@@ -64,14 +64,14 @@ class SideForms {
 
     // サイズ設定の手動選択 On/Off
     const radioBlock = document.createElement("div");
-    this.#aside.appendChild(radioBlock);
+    this.#asideObject.appendChild(radioBlock);
     radioBlock.style.margin = CONFIG_BLOCK_MARGIN;
     this.#createRadioForm(radioBlock);
 
     for (let i = 0; i < this.#draft.sections.length; i++) {
       // NOTE: draft.sections[i] の編集フォームを動的に生成する
       const configBlock = document.createElement("div");
-      this.#aside.appendChild(configBlock);
+      this.#asideObject.appendChild(configBlock);
       configBlock.style.padding = CONFIG_BLOCK_PADDING;
       configBlock.style.margin = CONFIG_BLOCK_MARGIN;
 
@@ -629,7 +629,7 @@ class SideForms {
     if (!this.#isEditing) {
       return;
     }
-    this.#stamps_draft.stamps.push({ arc: SMILE_MARK_STAMP, stroke: FONT_RED });
+    this.#stampsDraft.stamps.push({ arc: SMILE_MARK_STAMP, stroke: FONT_RED });
     this.drawEdited();
   }
   // スタンプ (済み) を追加する
@@ -637,7 +637,7 @@ class SideForms {
     if (!this.#isEditing) {
       return;
     }
-    this.#stamps_draft.stamps.push({
+    this.#stampsDraft.stamps.push({
       text: "済",
       arc: DONE_MARK_STAMP,
       stroke: FONT_RED,
@@ -679,10 +679,10 @@ class SideForms {
     this.#draft.height = this.#calcRectYPosition(this.#draft.sections.length);
     this.#canvasPage.setDraft(this.#draft);
     // スタンプ
-    this.#stamps_draft = JSON.parse(
+    this.#stampsDraft = JSON.parse(
       JSON.stringify(this.#canvasPage.getStampsInitial())
     );
-    this.#canvasPage.setStampsDraft(this.#stamps_draft);
+    this.#canvasPage.setStampsDraft(this.#stampsDraft);
     this.#canvasPage.draw();
     this.showForms();
   }

@@ -4,31 +4,31 @@ class CanvasPage {
 
   // 初期値、編集中の値
   #initial;
-  #stamps_initial;
+  #stampsInitial;
 
   #draft;
-  #stamps_draft;
+  #stampsDraft;
 
   #data;
-  #stamps_data;
+  #stampsData;
 
   // モード
   #isEditing;
 
   // コンストラクタ
   // ----------------------------------------
-  constructor(initial, stamps_initial, isEditing = false) {
-    this.#canvas = document.getElementById("tutorial");
+  constructor(node, initial, stamps_initial, isEditing = false) {
+    this.#canvas = node;
 
     // 表示データ
     this.#initial = JSON.parse(JSON.stringify(initial));
-    this.#stamps_initial = JSON.parse(JSON.stringify(stamps_initial));
+    this.#stampsInitial = JSON.parse(JSON.stringify(stamps_initial));
 
     this.#draft = JSON.parse(JSON.stringify(initial));
-    this.#stamps_draft = JSON.parse(JSON.stringify(stamps_initial));
+    this.#stampsDraft = JSON.parse(JSON.stringify(stamps_initial));
 
     this.#data = this.#draft;
-    this.#stamps_data = this.#stamps_draft;
+    this.#stampsData = this.#stampsDraft;
 
     // モード
     this.#isEditing = isEditing;
@@ -54,7 +54,7 @@ class CanvasPage {
   }
 
   getStampsInitial() {
-    return this.#stamps_initial;
+    return this.#stampsInitial;
   }
 
   getDraft() {
@@ -62,7 +62,7 @@ class CanvasPage {
   }
 
   getStampsDraft() {
-    return this.#stamps_draft;
+    return this.#stampsDraft;
   }
 
   // 編集モードでリセットしたデータをセットする
@@ -72,8 +72,8 @@ class CanvasPage {
   }
 
   setStampsDraft(stampsDraft) {
-    this.#stamps_draft = stampsDraft;
-    this.#stamps_data = this.#stamps_draft;
+    this.#stampsDraft = stampsDraft;
+    this.#stampsData = this.#stampsDraft;
   }
 
   setData(data) {
@@ -81,7 +81,7 @@ class CanvasPage {
   }
 
   setStampsData(stampsData) {
-    this.#stamps_data = stampsData;
+    this.#stampsData = stampsData;
   }
 
   // Canvas へ data を描画する
@@ -117,7 +117,7 @@ class CanvasPage {
       }
 
       // スタンプ
-      this.#stamps_data.stamps.map((c) => {
+      this.#stampsData.stamps.map((c) => {
         // circle の 'c'
         if (c.arc) {
           this.#drawStamp(ctx, c);

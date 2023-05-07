@@ -51,12 +51,16 @@
       var sideForms;
 
       function main() {
-        // ページ描画
         let isEditing = false;
-        canvasPage = new CanvasPage(initial, stamps_initial, isEditing);
+
+        // ページ描画
+        const node = document.getElementById("tutorial");
+        canvasPage = new CanvasPage(node, initial, stamps_initial, isEditing);
         canvasPage.draw();
         // 編集エリア生成
-        sideForms = new SideForms(canvasPage);
+        const aside = document.getElementById("config-forms");
+        const controlBar = document.getElementById("elements-control-bar");
+        sideForms = new SideForms(canvasPage, aside, controlBar);
         sideForms.showForms();
 
         // モードを切り替えた場合
