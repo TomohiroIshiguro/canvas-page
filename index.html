@@ -31,19 +31,19 @@
     </div>
     <div id="elements-control-bar">
       <label>末尾に追加: </label>
-      <button onclick="canvasPage.addH1();">見出し 1</button>
-      <button onclick="canvasPage.addH2();">見出し 2</button>
-      <button onclick="canvasPage.addRect();">本文</button>
-      <button onclick="canvasPage.addImage();">静止画</button>
-      <button onclick="canvasPage.addVideoPlayer();">動画</button>
+      <button onclick="sideForms.addH1();">見出し 1</button>
+      <button onclick="sideForms.addH2();">見出し 2</button>
+      <button onclick="sideForms.addRect();">本文</button>
+      <button onclick="sideForms.addImage();">静止画</button>
+      <button onclick="sideForms.addVideoPlayer();">動画</button>
       <label>スタンプ: </label>
-      <button onclick="canvasPage.addSmileStamp();">スマイル</button>
-      <button onclick="canvasPage.addDoneStamp();">済み</button>
+      <button onclick="sideForms.addSmileStamp();">スマイル</button>
+      <button onclick="sideForms.addDoneStamp();">済み</button>
       <label>再描画: </label>
-      <button onclick="canvasPage.drawInitial();">初期値</button>
-      <button onclick="canvasPage.drawEdited();">編集中</button>
+      <button onclick="sideForms.drawInitial();">初期値</button>
+      <button onclick="sideForms.drawEdited();">編集中</button>
       <label>初期化: </label>
-      <button onclick="canvasPage.resetEdited();">リセット</button>
+      <button onclick="sideForms.resetEdited();">リセット</button>
     </div>
 
     <script>
@@ -58,7 +58,6 @@
         // 編集エリア生成
         sideForms = new SideForms(canvasPage);
         sideForms.showForms();
-        canvasPage.setSideForms(sideForms);
 
         // モードを切り替えた場合
         const radios = document.querySelectorAll(

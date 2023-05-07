@@ -1,5 +1,8 @@
+// クラス
 class SideForms {
   #canvasPage;
+
+  // 編集フォーム
   #aside;
   #elementsControlBar;
 
@@ -8,6 +11,12 @@ class SideForms {
   #asideWidth;
   #textAreaWidth;
   #textFieldWidth;
+
+  // 編集データ
+  #isEditing;
+
+  #draft;
+  #stamps_draft;
 
   // コンストラクタ
   // ----------------------------------------
@@ -26,7 +35,8 @@ class SideForms {
   // ----------------------------------------
   showForms() {
     // 編集モードの時にボタンを動的に生成する
-    if (!this.#canvasPage.getIsEditing()) {
+    this.#isEditing = this.#canvasPage.getIsEditing();
+    if (!this.#isEditing) {
       this.#aside.style.display = "none";
       this.#elementsControlBar.style.display = "none";
       return;
@@ -35,7 +45,8 @@ class SideForms {
       this.#elementsControlBar.style.display = "block";
     }
 
-    let draft = this.#canvasPage.getDraft();
+    this.#draft = this.#canvasPage.getDraft();
+    this.#stamps_draft = this.#canvasPage.getStampsDraft();
 
     while (this.#aside.firstChild) {
       this.#aside.removeChild(this.#aside.firstChild);
@@ -55,22 +66,22 @@ class SideForms {
     radioBlock.style.margin = CONFIG_BLOCK_MARGIN;
     this.#createRadioForm(radioBlock);
 
-    for (let i = 0; i < draft.sections.length; i++) {
+    for (let i = 0; i < this.#draft.sections.length; i++) {
       // NOTE: draft.sections[i] の編集フォームを動的に生成する
       const configBlock = document.createElement("div");
       this.#aside.appendChild(configBlock);
       configBlock.style.padding = CONFIG_BLOCK_PADDING;
       configBlock.style.margin = CONFIG_BLOCK_MARGIN;
 
-      if (draft.sections[i].rect && draft.sections[i].stroke) {
+      if (this.#draft.sections[i].rect && this.#draft.sections[i].stroke) {
         // 罫線のみの矩形の場合
         configBlock.style.background = CONFIG_BLOCK_BLUE;
-        this.#createRectStroke(configBlock, draft, i);
+        this.#createRectStroke(configBlock, this.#draft, i);
       }
-      if (draft.sections[i].rect && draft.sections[i].fill) {
+      if (this.#draft.sections[i].rect && this.#draft.sections[i].fill) {
         // 背景色をもつ矩形の場合
         configBlock.style.background = CONFIG_BLOCK_PURPLE;
-        this.#createRectFilled(configBlock, draft, i);
+        this.#createRectFilled(configBlock, this.#draft, i);
       }
     }
   }
@@ -327,6 +338,26 @@ class SideForms {
     configBlock.appendChild(heiBr);
   }
 
+  // canvas の上辺から指定のブロックの高さを計算する
+  #calcRectHeight(max) {
+    let height = 0;
+    for (let i = 0; i < max; i++) {
+      // 2 カラムの時に、セクションの高さを比較して高いほうに合わせる
+      if (
+        this.#draft.sections[i - 1] &&
+        this.#draft.sections[i].rect.y == this.#draft.sections[i - 1].rect.y &&
+        this.#draft.sections[i].rect.h < this.#draft.sections[i - 1].rect.h
+      ) {
+        continue;
+      }
+      height =
+        parseInt(this.#draft.sections[i].rect.y) +
+        parseInt(this.#draft.sections[i].rect.h) +
+        MARGIN;
+    }
+    return Math.ceil(height);
+  }
+
   // type を編集した際の rect の高さ、後続の要素の描画位置をリセットする
   #resetRectPosition(page, draft, index) {
     if (!this.#canvasPage.getIsEditing()) {
@@ -342,7 +373,7 @@ class SideForms {
       }
 
       // ブロックの位置を修正する
-      const position = Math.ceil(page.calcRectHeight(i));
+      const position = Math.ceil(this.#calcRectHeight(i));
       if (
         draft.sections[i + 1] &&
         draft.sections[i].rect.y == draft.sections[i + 1].rect.y
@@ -360,7 +391,7 @@ class SideForms {
   // サイズ編集フォームの表示非表示を変更するイベントリスナー
   changeRadio(e) {
     const page = canvasPage;
-    const forms = page.getSideForms();
+    const forms = sideForms;
 
     forms.#isManual = e.target.value == "On";
     forms.showForms();
@@ -372,7 +403,7 @@ class SideForms {
   // 編集した要素の type を更新するイベントリスナー
   static changeType(e) {
     const page = canvasPage;
-    const forms = page.getSideForms();
+    const forms = sideForms;
     const draft = page.getDraft();
 
     const index = e.target.id.replace("rectType", "");
@@ -393,84 +424,220 @@ class SideForms {
     draft.sections[index].rect.h = height;
 
     forms.#resetRectPosition(page, draft, index);
-    page.drawEdited();
+    forms.drawEdited();
   }
 
   // 編集した要素の text を更新するイベントリスナー
   static changeText(e) {
     const page = canvasPage;
-    const forms = page.getSideForms();
+    const forms = sideForms;
     const draft = page.getDraft();
 
     const index = e.target.id.replace("rectText", "");
     draft.sections[index].text = document.getElementById(e.target.id).value;
 
     forms.#resetRectPosition(page, draft, index);
-    page.drawEdited();
+    forms.drawEdited();
   }
 
   // 編集した要素の url を更新するイベントリスナー
   static changeUrl(e) {
     const page = canvasPage;
-    const forms = page.getSideForms();
+    const forms = sideForms;
     const draft = page.getDraft();
 
     const index = e.target.id.replace("rectUrl", "");
     draft.sections[index].url = document.getElementById(e.target.id).value;
 
     forms.#resetRectPosition(page, draft, index);
-    page.drawEdited();
+    forms.drawEdited();
   }
 
   // 編集した要素の x position を更新するイベントリスナー
   static changeXPos(e) {
     const page = canvasPage;
-    const forms = page.getSideForms();
+    const forms = sideForms;
     const draft = page.getDraft();
 
     const index = e.target.id.replace("rectXPos", "");
     draft.sections[index].rect.x = document.getElementById(e.target.id).value;
 
     forms.#resetRectPosition(page, draft, index);
-    page.drawEdited();
+    forms.drawEdited();
   }
 
   // 編集した要素の y position を更新するイベントリスナー
   static changeYPos(e) {
     const page = canvasPage;
-    const forms = page.getSideForms();
+    const forms = sideForms;
     const draft = page.getDraft();
 
     const index = e.target.id.replace("rectYPos", "");
     draft.sections[index].rect.y = document.getElementById(e.target.id).value;
 
     forms.#resetRectPosition(page, draft, index);
-    page.drawEdited();
+    forms.drawEdited();
   }
 
   // 編集した要素の width を更新するイベントリスナー
   static changeWidth(e) {
     const page = canvasPage;
-    const forms = page.getSideForms();
+    const forms = sideForms;
     const draft = page.getDraft();
 
     const index = e.target.id.replace("rectWidth", "");
     draft.sections[index].rect.w = document.getElementById(e.target.id).value;
 
     forms.#resetRectPosition(page, draft, index);
-    page.drawEdited();
+    forms.drawEdited();
   }
 
   // 編集した要素の height を更新するイベントリスナー
   static changeHeight(e) {
     const page = canvasPage;
-    const forms = page.getSideForms();
+    const forms = sideForms;
     const draft = page.getDraft();
 
     const index = e.target.id.replace("rectHeight", "");
     draft.sections[index].rect.h = document.getElementById(e.target.id).value;
 
     forms.#resetRectPosition(page, draft, index);
-    page.drawEdited();
+    forms.drawEdited();
+  }
+
+  // 編集中の値を編集する
+  // ----------------------------------------
+  // H1 見出しブロックを追加する
+  addH1() {
+    if (!this.#isEditing) {
+      return;
+    }
+    const y = this.#calcRectHeight(this.#draft.sections.length);
+    this.#draft.sections.push({
+      heading: H1_TYPE,
+      text: "H1",
+      rect: { x: 0, y: y, w: FULL_WIDTH, h: H1_SIZE + PADDING },
+      stroke: STROKE_RED,
+    });
+    this.drawEdited();
+  }
+  // H2 見出しブロックを追加する
+  addH2() {
+    if (!this.#isEditing) {
+      return;
+    }
+    const y = this.#calcRectHeight(this.#draft.sections.length);
+    this.#draft.sections.push({
+      heading: H2_TYPE,
+      text: "H2",
+      rect: { x: 0, y: y, w: FULL_WIDTH, h: H2_SIZE + PADDING },
+      stroke: STROKE_RED,
+    });
+    this.drawEdited();
+  }
+  // 本文ブロックを追加する
+  addRect() {
+    if (!this.#isEditing) {
+      return;
+    }
+    const y = this.#calcRectHeight(this.#draft.sections.length);
+    this.#draft.sections.push({
+      text: "content",
+      rect: { x: 0, y: y, w: FULL_WIDTH, h: DEFAULT_SIZE + MARGIN },
+      stroke: STROKE_RED,
+    });
+    this.drawEdited();
+  }
+
+  // 動画プレーヤーブロックを追加する
+  addImage() {
+    if (!this.#isEditing) {
+      return;
+    }
+    const y = this.#calcRectHeight(this.#draft.sections.length);
+    this.#draft.sections.push({
+      text: "image placeholder",
+      url: "https://example.com/test.png",
+      rect: { x: 0, y: y, w: 400, h: 250 },
+      fill: FILL_PURPLE,
+    });
+    this.drawEdited();
+  }
+  // 動画プレーヤーブロックを追加する
+  addVideoPlayer() {
+    if (!this.#isEditing) {
+      return;
+    }
+    const y = this.#calcRectHeight(this.#draft.sections.length);
+    this.#draft.sections.push({
+      text: "video player placeholder",
+      url: "https://example.com/test.png",
+      rect: { x: 0, y: y, w: 400, h: 250 },
+      fill: FILL_PURPLE,
+    });
+    this.drawEdited();
+  }
+
+  // スタンプ (スマイル) を追加する
+  addSmileStamp() {
+    if (!this.#isEditing) {
+      return;
+    }
+    this.#stamps_draft.stamps.push({ arc: SMILE_MARK_STAMP, stroke: FONT_RED });
+    this.drawEdited();
+  }
+  // スタンプ (済み) を追加する
+  addDoneStamp() {
+    if (!this.#isEditing) {
+      return;
+    }
+    this.#stamps_draft.stamps.push({
+      text: "済",
+      arc: DONE_MARK_STAMP,
+      stroke: FONT_RED,
+    });
+    this.drawEdited();
+  }
+
+  // Canvas へ data を再描画する
+  // ----------------------------------------
+  drawInitial() {
+    if (!this.#isEditing) {
+      return;
+    }
+    document.getElementById("tutorial").getContext("2d").reset();
+    this.#canvasPage.setData(this.#canvasPage.getInitial());
+    this.#canvasPage.setStampsData(this.#canvasPage.getStampsInitial());
+    this.#canvasPage.draw();
+    this.showForms();
+  }
+  drawEdited() {
+    if (!this.#isEditing) {
+      return;
+    }
+    document.getElementById("tutorial").getContext("2d").reset();
+    this.#draft.height = this.#calcRectHeight(this.#draft.sections.length);
+    this.#canvasPage.setData(this.#canvasPage.getDraft());
+    this.#canvasPage.setStampsData(this.#canvasPage.getStampsDraft());
+    this.#canvasPage.draw();
+    this.showForms();
+  }
+
+  // 編集内容をリセットする
+  resetEdited() {
+    if (!this.#isEditing) {
+      return;
+    }
+    // レイアウト
+    this.#draft = JSON.parse(JSON.stringify(this.#canvasPage.getInitial()));
+    this.#draft.height = this.#calcRectHeight(this.#draft.sections.length);
+    this.#canvasPage.setDraft(this.#draft);
+    // スタンプ
+    this.#stamps_draft = JSON.parse(
+      JSON.stringify(this.#canvasPage.getStampsInitial())
+    );
+    this.#canvasPage.setStampsDraft(this.#stamps_draft);
+    this.#canvasPage.draw();
+    this.showForms();
   }
 }

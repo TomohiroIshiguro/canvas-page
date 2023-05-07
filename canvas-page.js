@@ -1,9 +1,6 @@
 // クラス
 class CanvasPage {
   #canvas;
-  #sideForms;
-
-  #isEditing;
 
   // 初期値、編集中の値
   #initial;
@@ -15,21 +12,26 @@ class CanvasPage {
   #data;
   #stamps_data;
 
+  // モード
+  #isEditing;
+
   // コンストラクタ
   // ----------------------------------------
   constructor(initial, stamps_initial, isEditing = false) {
-    this.#isEditing = isEditing;
+    this.#canvas = document.getElementById("tutorial");
 
+    // 表示データ
     this.#initial = JSON.parse(JSON.stringify(initial));
     this.#stamps_initial = JSON.parse(JSON.stringify(stamps_initial));
 
-    this.#draft = JSON.parse(JSON.stringify(this.#initial));
-    this.#stamps_draft = JSON.parse(JSON.stringify(this.#stamps_initial));
+    this.#draft = JSON.parse(JSON.stringify(initial));
+    this.#stamps_draft = JSON.parse(JSON.stringify(stamps_initial));
 
     this.#data = this.#draft;
     this.#stamps_data = this.#stamps_draft;
 
-    this.#canvas = document.getElementById("tutorial");
+    // モード
+    this.#isEditing = isEditing;
   }
 
   // Getter/Setter
@@ -42,33 +44,47 @@ class CanvasPage {
     this.#isEditing = isEditing;
   }
 
+  // 編集モードで CanvasPage のデータを取得する
+  getInitial() {
+    return this.#initial;
+  }
+
+  getStampsInitial() {
+    return this.#stamps_initial;
+  }
+
   getDraft() {
     return this.#draft;
   }
 
+  getStampsDraft() {
+    return this.#stamps_draft;
+  }
+
+  // 編集モードでリセットしたデータをセットする
   setDraft(draft) {
     this.#draft = draft;
+    this.#data = this.#draft;
   }
 
-  getSideForms() {
-    return this.#sideForms;
+  setStampsDraft(stampsDraft) {
+    this.#stamps_draft = stampsDraft;
+    this.#stamps_data = this.#stamps_draft;
   }
 
-  setSideForms(sideForms) {
-    this.#sideForms = sideForms;
+  setData(data) {
+    this.#data = data;
+  }
+
+  setStampsData(stampsData) {
+    this.#stamps_data = stampsData;
   }
 
   // Canvas へ data を描画する
   // ----------------------------------------
   draw() {
-    this.#canvas.width = FULL_WIDTH;
-
-    // canvas の高さを再計算する
-    let height = this.calcRectHeight(this.#draft.sections.length);
-    if (height < MIN_HEIGHT) {
-      height = MIN_HEIGHT;
-    }
-    this.#canvas.height = height;
+    this.#canvas.width = this.#data.width;
+    this.#canvas.height = this.#data.height;
 
     // canvas に図形・文字を描画する
     if (this.#canvas.getContext) {
@@ -76,7 +92,7 @@ class CanvasPage {
 
       // レイアウト
       for (let i = 0; i < this.#data.sections.length; i++) {
-        const r = this.#draft.sections[i]; // rectangle の 'r'
+        const r = this.#data.sections[i]; // rectangle の 'r'
         if (r.rect && r.stroke) {
           // 罫線のみの矩形の場合
           if (r.text) {
@@ -104,50 +120,6 @@ class CanvasPage {
           this.#drawStamp(ctx, c);
         }
       });
-    }
-  }
-
-  // canvas の上辺から指定のブロックの高さを計算する
-  calcRectHeight(max) {
-    let height = 0;
-    for (let i = 0; i < max; i++) {
-      // 2 カラムの時に、セクションの高さを比較して高いほうに合わせる
-      if (
-        this.#draft.sections[i - 1] &&
-        this.#draft.sections[i].rect.y == this.#draft.sections[i - 1].rect.y &&
-        this.#draft.sections[i].rect.h < this.#draft.sections[i - 1].rect.h
-      ) {
-        continue;
-      }
-      height =
-        parseInt(this.#draft.sections[i].rect.y) +
-        parseInt(this.#draft.sections[i].rect.h) +
-        MARGIN;
-    }
-    return Math.ceil(height);
-  }
-
-  // type を編集した際の rect の高さ、後続の要素の描画位置をリセットする
-  #resetRectPosition(index) {
-    for (let i = parseInt(index) + 1; i < this.#draft.sections.length; i++) {
-      if (
-        this.#draft.sections[i - 1] &&
-        this.#draft.sections[i].rect.y == this.#draft.sections[i - 1].rect.y
-      ) {
-        // 2 カラムの場合
-        continue;
-      }
-
-      // ブロックの位置を修正する
-      const position = Math.ceil(this.calcRectHeight(i));
-      if (
-        this.#draft.sections[i + 1] &&
-        this.#draft.sections[i].rect.y == this.#draft.sections[i + 1].rect.y
-      ) {
-        // 2 カラムの場合
-        this.#draft.sections[i + 1].rect.y = position;
-      }
-      this.#draft.sections[i].rect.y = position;
     }
   }
 
@@ -220,6 +192,48 @@ class CanvasPage {
     }
   }
 
+  // 見出し、本文を改行した時の要素の高さ、後続の要素の描画位置をリセットする
+  #resetRectPosition(index) {
+    for (let i = parseInt(index) + 1; i < this.#data.sections.length; i++) {
+      if (
+        this.#data.sections[i - 1] &&
+        this.#data.sections[i].rect.y == this.#data.sections[i - 1].rect.y
+      ) {
+        // 2 カラムの場合
+        continue;
+      }
+
+      // ブロックの位置を修正する
+      const position = Math.ceil(this.#calcRectHeight(i));
+      if (
+        this.#data.sections[i + 1] &&
+        this.#data.sections[i].rect.y == this.#data.sections[i + 1].rect.y
+      ) {
+        // 2 カラムの場合
+        this.#data.sections[i + 1].rect.y = position;
+      }
+      this.#data.sections[i].rect.y = position;
+    }
+  }
+  #calcRectHeight(max) {
+    let height = 0;
+    for (let i = 0; i < max; i++) {
+      // 2 カラムの時に、セクションの高さを比較して高いほうに合わせる
+      if (
+        this.#data.sections[i - 1] &&
+        this.#data.sections[i].rect.y == this.#data.sections[i - 1].rect.y &&
+        this.#data.sections[i].rect.h < this.#data.sections[i - 1].rect.h
+      ) {
+        continue;
+      }
+      height =
+        parseInt(this.#data.sections[i].rect.y) +
+        parseInt(this.#data.sections[i].rect.h) +
+        MARGIN;
+    }
+    return Math.ceil(height);
+  }
+
   // 罫線のみの領域を描画する
   #drawRectStroke(ctx, r) {
     const rectangle = new Path2D();
@@ -264,141 +278,6 @@ class CanvasPage {
         c.arc[0].x - (STAMP_SIZE + MARGIN) / 2,
         c.arc[0].y + (STAMP_SIZE + MARGIN) / 2
       );
-    }
-  }
-
-  // 編集中の値を編集する
-  // ----------------------------------------
-  // H1 見出しブロックを追加する
-  addH1() {
-    if (!this.#isEditing) {
-      return;
-    }
-    const y = this.calcRectHeight(this.#draft.sections.length);
-    this.#draft.sections.push({
-      heading: H1_TYPE,
-      text: "H1",
-      rect: { x: 0, y: y, w: FULL_WIDTH, h: H1_SIZE + PADDING },
-      stroke: STROKE_RED,
-    });
-    this.drawEdited();
-  }
-  // H2 見出しブロックを追加する
-  addH2() {
-    if (!this.#isEditing) {
-      return;
-    }
-    const y = this.calcRectHeight(this.#draft.sections.length);
-    this.#draft.sections.push({
-      heading: H2_TYPE,
-      text: "H2",
-      rect: { x: 0, y: y, w: FULL_WIDTH, h: H2_SIZE + PADDING },
-      stroke: STROKE_RED,
-    });
-    this.drawEdited();
-  }
-  // 本文ブロックを追加する
-  addRect() {
-    if (!this.#isEditing) {
-      return;
-    }
-    const y = this.calcRectHeight(this.#draft.sections.length);
-    this.#draft.sections.push({
-      text: "content",
-      rect: { x: 0, y: y, w: FULL_WIDTH, h: DEFAULT_SIZE + MARGIN },
-      stroke: STROKE_RED,
-    });
-    this.drawEdited();
-  }
-
-  // 動画プレーヤーブロックを追加する
-  addImage() {
-    if (!this.#isEditing) {
-      return;
-    }
-    const y = this.calcRectHeight(this.#draft.sections.length);
-    this.#draft.sections.push({
-      text: "image placeholder",
-      url: "https://example.com/test.png",
-      rect: { x: 0, y: y, w: 400, h: 250 },
-      fill: FILL_PURPLE,
-    });
-    this.drawEdited();
-  }
-  // 動画プレーヤーブロックを追加する
-  addVideoPlayer() {
-    if (!this.#isEditing) {
-      return;
-    }
-    const y = this.calcRectHeight(this.#draft.sections.length);
-    this.#draft.sections.push({
-      text: "video player placeholder",
-      url: "https://example.com/test.png",
-      rect: { x: 0, y: y, w: 400, h: 250 },
-      fill: FILL_PURPLE,
-    });
-    this.drawEdited();
-  }
-
-  // スタンプ (スマイル) を追加する
-  addSmileStamp() {
-    if (!this.#isEditing) {
-      return;
-    }
-    this.#stamps_draft.stamps.push({ arc: SMILE_MARK_STAMP, stroke: FONT_RED });
-    this.drawEdited();
-  }
-  // スタンプ (済み) を追加する
-  addDoneStamp() {
-    if (!this.#isEditing) {
-      return;
-    }
-    this.#stamps_draft.stamps.push({
-      text: "済",
-      arc: DONE_MARK_STAMP,
-      stroke: FONT_RED,
-    });
-    this.drawEdited();
-  }
-
-  // 編集内容をリセットする
-  resetEdited() {
-    if (!this.#isEditing) {
-      return;
-    }
-    // レイアウト
-    this.#draft = JSON.parse(JSON.stringify(this.#initial));
-    this.#data = this.#draft;
-    // スタンプ
-    this.#stamps_draft = JSON.parse(JSON.stringify(this.#stamps_initial));
-    this.#stamps_data = this.#stamps_draft;
-    this.drawInitial();
-  }
-
-  // Canvas へ data を再描画する
-  // ----------------------------------------
-  drawInitial() {
-    if (!this.#isEditing) {
-      return;
-    }
-    document.getElementById("tutorial").getContext("2d").reset();
-    this.#data = this.#initial;
-    this.#stamps_data = this.#stamps_initial;
-    this.draw();
-    if (this.#sideForms) {
-      this.#sideForms.showForms();
-    }
-  }
-  drawEdited() {
-    if (!this.#isEditing) {
-      return;
-    }
-    document.getElementById("tutorial").getContext("2d").reset();
-    this.#data = this.#draft;
-    this.#stamps_data = this.#stamps_draft;
-    this.draw();
-    if (this.#sideForms) {
-      this.#sideForms.showForms();
     }
   }
 }

@@ -5,7 +5,8 @@
 // NOTE: 実際には API で取得した値を初期値とする
 // NOTE: DynamoDB などを使えば JSON オブジェクト形式のままデータを保持できる
 const initial = {
-  id: 1,
+  width: 900,
+  height: 1000,
   sections: [
     {
       rect: { x: 200, y: 0, w: 500, h: H1_SIZE + PADDING },
