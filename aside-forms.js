@@ -1,6 +1,7 @@
 // クラス
 class SideForms {
   #canvasPage;
+  #canvasObject;
 
   // 編集フォーム
   #aside;
@@ -22,6 +23,7 @@ class SideForms {
   // ----------------------------------------
   constructor(canvasPage) {
     this.#canvasPage = canvasPage;
+    this.#canvasObject = this.#canvasPage.getCanvasObject();
     this.#aside = document.getElementById("config-forms");
     this.#elementsControlBar = document.getElementById("elements-control-bar");
 
@@ -338,8 +340,45 @@ class SideForms {
     configBlock.appendChild(heiBr);
   }
 
+  // テキストエリアの高さを計算する
+  #calcTextHeight(font, r, fontSize) {
+    const ctx = this.#canvasObject.getContext("2d");
+    ctx.font = font;
+    if (r.rect && r.stroke) {
+      // 改行を含むテキストを描画する (見出し、本文)
+      // NOTE: 改行文字で行を改行する、且つ行がブロックの幅を超えたら自動的に改行する
+      const areaWidth = r.rect.w > PADDING * 2 ? r.rect.w - PADDING * 2 : 10; // px
+      const lines = r.text.split(LINE_BREAK);
+      r.rect.h = fontSize + MARGIN;
+      for (let i = 0; i < lines.length; i++) {
+        // 改行文字で行を改行した時の行ごとに
+        let tempLine = "";
+        if (lines[i].length == 0 && i < lines.length - 1) {
+          // 空行の場合は、ブロックの高さを更新して次の行の処理へ移る
+          r.rect.h += Math.ceil(fontSize * 1.3);
+          continue;
+        }
+        for (let j = 0; j < lines[i].length; j++) {
+          // 1 文字ずつ加えて、ブロックの幅を超えるか判定する
+          tempLine += lines[i][j];
+          if (ctx.measureText(tempLine).width > areaWidth) {
+            // 行の途中でブロックの幅を超えた時
+            r.rect.h += Math.ceil(fontSize * 1.3);
+            if (j < lines[i].length) j--;
+            tempLine = "";
+          } else if (j == lines[i].length - 1) {
+            // 行末に達した時
+            if (i < lines.length - 1) {
+              r.rect.h += Math.ceil(fontSize * 1.3);
+            }
+          }
+        }
+      }
+    }
+  }
+
   // canvas の上辺から指定のブロックの高さを計算する
-  #calcRectHeight(max) {
+  #calcRectYPosition(max) {
     let height = 0;
     for (let i = 0; i < max; i++) {
       // 2 カラムの時に、セクションの高さを比較して高いほうに合わせる
@@ -359,10 +398,7 @@ class SideForms {
   }
 
   // type を編集した際の rect の高さ、後続の要素の描画位置をリセットする
-  #resetRectPosition(page, draft, index) {
-    if (!this.#canvasPage.getIsEditing()) {
-      return;
-    }
+  #resetRectYPosition(page, draft, index) {
     for (let i = parseInt(index) + 1; i < draft.sections.length; i++) {
       if (
         draft.sections[i - 1] &&
@@ -373,7 +409,7 @@ class SideForms {
       }
 
       // ブロックの位置を修正する
-      const position = Math.ceil(this.#calcRectHeight(i));
+      const position = this.#calcRectYPosition(i);
       if (
         draft.sections[i + 1] &&
         draft.sections[i].rect.y == draft.sections[i + 1].rect.y
@@ -409,21 +445,19 @@ class SideForms {
     const index = e.target.id.replace("rectType", "");
     draft.sections[index].heading = document.getElementById(e.target.id).value;
 
-    let height = 0;
     switch (draft.sections[index].heading) {
       case H1_TYPE:
-        height = H1_SIZE + PADDING;
+        forms.#calcTextHeight(H1, draft.sections[index], H1_SIZE);
         break;
       case H2_TYPE:
-        height = H2_SIZE + PADDING;
+        forms.#calcTextHeight(H2, draft.sections[index], H2_SIZE);
         break;
       default:
-        height = DEFAULT_SIZE + PADDING;
+        forms.#calcTextHeight(DEFAULT, draft.sections[index], DEFAULT_SIZE);
         break;
     }
-    draft.sections[index].rect.h = height;
 
-    forms.#resetRectPosition(page, draft, index);
+    forms.#resetRectYPosition(page, draft, index);
     forms.drawEdited();
   }
 
@@ -436,7 +470,19 @@ class SideForms {
     const index = e.target.id.replace("rectText", "");
     draft.sections[index].text = document.getElementById(e.target.id).value;
 
-    forms.#resetRectPosition(page, draft, index);
+    switch (draft.sections[index].heading) {
+      case H1_TYPE:
+        forms.#calcTextHeight(H1, draft.sections[index], H1_SIZE);
+        break;
+      case H2_TYPE:
+        forms.#calcTextHeight(H2, draft.sections[index], H2_SIZE);
+        break;
+      default:
+        forms.#calcTextHeight(DEFAULT, draft.sections[index], DEFAULT_SIZE);
+        break;
+    }
+
+    forms.#resetRectYPosition(page, draft, index);
     forms.drawEdited();
   }
 
@@ -449,7 +495,7 @@ class SideForms {
     const index = e.target.id.replace("rectUrl", "");
     draft.sections[index].url = document.getElementById(e.target.id).value;
 
-    forms.#resetRectPosition(page, draft, index);
+    forms.#resetRectYPosition(page, draft, index);
     forms.drawEdited();
   }
 
@@ -462,7 +508,7 @@ class SideForms {
     const index = e.target.id.replace("rectXPos", "");
     draft.sections[index].rect.x = document.getElementById(e.target.id).value;
 
-    forms.#resetRectPosition(page, draft, index);
+    forms.#resetRectYPosition(page, draft, index);
     forms.drawEdited();
   }
 
@@ -475,7 +521,7 @@ class SideForms {
     const index = e.target.id.replace("rectYPos", "");
     draft.sections[index].rect.y = document.getElementById(e.target.id).value;
 
-    forms.#resetRectPosition(page, draft, index);
+    forms.#resetRectYPosition(page, draft, index);
     forms.drawEdited();
   }
 
@@ -488,7 +534,7 @@ class SideForms {
     const index = e.target.id.replace("rectWidth", "");
     draft.sections[index].rect.w = document.getElementById(e.target.id).value;
 
-    forms.#resetRectPosition(page, draft, index);
+    forms.#resetRectYPosition(page, draft, index);
     forms.drawEdited();
   }
 
@@ -501,7 +547,7 @@ class SideForms {
     const index = e.target.id.replace("rectHeight", "");
     draft.sections[index].rect.h = document.getElementById(e.target.id).value;
 
-    forms.#resetRectPosition(page, draft, index);
+    forms.#resetRectYPosition(page, draft, index);
     forms.drawEdited();
   }
 
@@ -512,7 +558,7 @@ class SideForms {
     if (!this.#isEditing) {
       return;
     }
-    const y = this.#calcRectHeight(this.#draft.sections.length);
+    const y = this.#calcRectYPosition(this.#draft.sections.length);
     this.#draft.sections.push({
       heading: H1_TYPE,
       text: "H1",
@@ -526,7 +572,7 @@ class SideForms {
     if (!this.#isEditing) {
       return;
     }
-    const y = this.#calcRectHeight(this.#draft.sections.length);
+    const y = this.#calcRectYPosition(this.#draft.sections.length);
     this.#draft.sections.push({
       heading: H2_TYPE,
       text: "H2",
@@ -540,7 +586,7 @@ class SideForms {
     if (!this.#isEditing) {
       return;
     }
-    const y = this.#calcRectHeight(this.#draft.sections.length);
+    const y = this.#calcRectYPosition(this.#draft.sections.length);
     this.#draft.sections.push({
       text: "content",
       rect: { x: 0, y: y, w: FULL_WIDTH, h: DEFAULT_SIZE + MARGIN },
@@ -554,7 +600,7 @@ class SideForms {
     if (!this.#isEditing) {
       return;
     }
-    const y = this.#calcRectHeight(this.#draft.sections.length);
+    const y = this.#calcRectYPosition(this.#draft.sections.length);
     this.#draft.sections.push({
       text: "image placeholder",
       url: "https://example.com/test.png",
@@ -568,7 +614,7 @@ class SideForms {
     if (!this.#isEditing) {
       return;
     }
-    const y = this.#calcRectHeight(this.#draft.sections.length);
+    const y = this.#calcRectYPosition(this.#draft.sections.length);
     this.#draft.sections.push({
       text: "video player placeholder",
       url: "https://example.com/test.png",
@@ -616,7 +662,7 @@ class SideForms {
       return;
     }
     document.getElementById("tutorial").getContext("2d").reset();
-    this.#draft.height = this.#calcRectHeight(this.#draft.sections.length);
+    this.#draft.height = this.#calcRectYPosition(this.#draft.sections.length);
     this.#canvasPage.setData(this.#canvasPage.getDraft());
     this.#canvasPage.setStampsData(this.#canvasPage.getStampsDraft());
     this.#canvasPage.draw();
@@ -630,7 +676,7 @@ class SideForms {
     }
     // レイアウト
     this.#draft = JSON.parse(JSON.stringify(this.#canvasPage.getInitial()));
-    this.#draft.height = this.#calcRectHeight(this.#draft.sections.length);
+    this.#draft.height = this.#calcRectYPosition(this.#draft.sections.length);
     this.#canvasPage.setDraft(this.#draft);
     // スタンプ
     this.#stamps_draft = JSON.parse(

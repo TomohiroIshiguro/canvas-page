@@ -36,6 +36,10 @@ class CanvasPage {
 
   // Getter/Setter
   // ----------------------------------------
+  getCanvasObject() {
+    return this.#canvas;
+  }
+
   getIsEditing() {
     return this.#isEditing;
   }
@@ -97,7 +101,6 @@ class CanvasPage {
           // 罫線のみの矩形の場合
           if (r.text) {
             this.#drawText(ctx, r, FONT_BLACK);
-            this.#resetRectPosition(i);
           }
           if (this.#isEditing) {
             this.#drawRectStroke(ctx, r); // DEBUG
@@ -148,14 +151,12 @@ class CanvasPage {
       const areaWidth = r.rect.w > PADDING * 2 ? r.rect.w - PADDING * 2 : 10; // px
       const lines = r.text.split(LINE_BREAK);
       let y = parseInt(r.rect.y) + fontSize;
-      r.rect.h = fontSize + MARGIN;
       for (let i = 0; i < lines.length; i++) {
         // 改行文字で行を改行した時の行ごとに
         let tempLine = "";
         if (lines[i].length == 0 && i < lines.length - 1) {
           // 空行の場合は、ブロックの高さを更新して次の行の処理へ移る
           y += Math.ceil(fontSize * 1.3);
-          r.rect.h += Math.ceil(fontSize * 1.3);
           continue;
         }
         for (let j = 0; j < lines[i].length; j++) {
@@ -169,7 +170,6 @@ class CanvasPage {
               y
             );
             y += Math.ceil(fontSize * 1.3);
-            r.rect.h += Math.ceil(fontSize * 1.3);
             if (j < lines[i].length) j--;
             tempLine = "";
           } else if (j == lines[i].length - 1) {
@@ -177,7 +177,6 @@ class CanvasPage {
             ctx.fillText(tempLine, parseInt(r.rect.x) + MARGIN, y);
             if (i < lines.length - 1) {
               y += Math.ceil(fontSize * 1.3);
-              r.rect.h += Math.ceil(fontSize * 1.3);
             }
           }
         }
@@ -190,48 +189,6 @@ class CanvasPage {
         parseInt(r.rect.y) + fontSize
       );
     }
-  }
-
-  // 見出し、本文を改行した時の要素の高さ、後続の要素の描画位置をリセットする
-  #resetRectPosition(index) {
-    for (let i = parseInt(index) + 1; i < this.#data.sections.length; i++) {
-      if (
-        this.#data.sections[i - 1] &&
-        this.#data.sections[i].rect.y == this.#data.sections[i - 1].rect.y
-      ) {
-        // 2 カラムの場合
-        continue;
-      }
-
-      // ブロックの位置を修正する
-      const position = Math.ceil(this.#calcRectHeight(i));
-      if (
-        this.#data.sections[i + 1] &&
-        this.#data.sections[i].rect.y == this.#data.sections[i + 1].rect.y
-      ) {
-        // 2 カラムの場合
-        this.#data.sections[i + 1].rect.y = position;
-      }
-      this.#data.sections[i].rect.y = position;
-    }
-  }
-  #calcRectHeight(max) {
-    let height = 0;
-    for (let i = 0; i < max; i++) {
-      // 2 カラムの時に、セクションの高さを比較して高いほうに合わせる
-      if (
-        this.#data.sections[i - 1] &&
-        this.#data.sections[i].rect.y == this.#data.sections[i - 1].rect.y &&
-        this.#data.sections[i].rect.h < this.#data.sections[i - 1].rect.h
-      ) {
-        continue;
-      }
-      height =
-        parseInt(this.#data.sections[i].rect.y) +
-        parseInt(this.#data.sections[i].rect.h) +
-        MARGIN;
-    }
-    return Math.ceil(height);
   }
 
   // 罫線のみの領域を描画する
