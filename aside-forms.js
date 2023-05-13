@@ -1,21 +1,25 @@
 // クラス
 class SideForms {
   #canvasPage;
-  #canvasObject;
+  #canvasRowObject;
 
-  // 編集フォーム
-  #asideObject;
-  #controlBarObject;
-
-  #isManual;
+  // Canvas ビュー
+  #canvasViewObject;
 
   #asideWidth;
   #textAreaWidth;
   #textFieldWidth;
 
-  // 編集データ
-  #isEditing;
+  // モード切り替え
+  #isEditing; // true: 編集モード, false: 表示モード
 
+  // 編集フォーム
+  #asideObject;
+  #controlBarObject;
+
+  #isManual; // 要素の位置、サイズを設定する: true 手動で指定, false: 自動計算
+
+  // 編集データ
   #draft;
   #stampsDraft;
 
@@ -23,7 +27,8 @@ class SideForms {
   // ----------------------------------------
   constructor(canvasPage, aside, controlBar) {
     this.#canvasPage = canvasPage;
-    this.#canvasObject = this.#canvasPage.getCanvasObject();
+    this.#canvasRowObject = document.getElementById(FLEX_ROW_CONTAINER_ID);
+    this.#canvasViewObject = this.#canvasPage.getCanvasObject();
     this.#asideObject = aside;
     this.#controlBarObject = controlBar;
 
@@ -36,22 +41,42 @@ class SideForms {
   // サイドバーにフォームをセットする
   // ----------------------------------------
   showForms() {
-    // 編集モードの時にボタンを動的に生成する
+    this.#asideObject = document.getElementById(ASIDE_FORMS_ID);
+    this.#controlBarObject = document.getElementById(CONTROL_BAR_ID);
+
+    // 表示モード時にはフォームを削除する
     this.#isEditing = this.#canvasPage.getIsEditing();
     if (!this.#isEditing) {
-      this.#asideObject.style.display = "none";
-      this.#controlBarObject.style.display = "none";
+      if (this.#asideObject) {
+        this.#asideObject.remove();
+      }
+      if (this.#controlBarObject) {
+        this.#controlBarObject.remove();
+      }
       return;
-    } else {
-      this.#asideObject.style.display = "block";
-      this.#controlBarObject.style.display = "block";
+    }
+
+    // 編集モード時にフォームを動的に生成する
+    if (!this.#asideObject) {
+      this.#asideObject = document.createElement("div");
+      this.#canvasRowObject.appendChild(this.#asideObject);
+      this.#asideObject.id = ASIDE_FORMS_ID;
+    }
+    if (!this.#controlBarObject) {
+      this.#controlBarObject = document.createElement("div");
+      this.#canvasRowObject.after(this.#controlBarObject);
+      this.#controlBarObject.id = CONTROL_BAR_ID;
     }
 
     this.#draft = this.#canvasPage.getDraft();
     this.#stampsDraft = this.#canvasPage.getStampsDraft();
+    this.#createAsideForms();
+    this.#createControlBar();
+  }
 
+  #createAsideForms() {
     while (this.#asideObject.firstChild) {
-      this.#asideObject.removeChild(this.#asideObject.firstChild);
+      this.#asideObject.firstChild.remove();
     }
 
     this.#asideWidth = window.innerWidth - FULL_WIDTH - PADDING * 3; // px
@@ -342,7 +367,7 @@ class SideForms {
 
   // テキストエリアの高さを計算する
   #calcTextHeight(font, r, fontSize) {
-    const ctx = this.#canvasObject.getContext("2d");
+    const ctx = this.#canvasViewObject.getContext("2d");
     ctx.font = font;
     if (r.rect && r.stroke) {
       // 改行を含むテキストを描画する (見出し、本文)
@@ -419,6 +444,100 @@ class SideForms {
       }
       draft.sections[i].rect.y = position;
     }
+  }
+
+  // コントロールバーを生成する
+  // ----------------------------------------
+  #createControlBar() {
+    if (this.#controlBarObject.firstChild) {
+      return;
+    }
+
+    // 要素を追加するボタンを生成する
+    const rectTitle = document.createElement("label");
+    this.#controlBarObject.appendChild(rectTitle);
+    rectTitle.innerHTML = "末尾に追加: ";
+    rectTitle.style.margin = BUTTON_MARGIN;
+
+    const h1Btn = document.createElement("button");
+    this.#controlBarObject.appendChild(h1Btn);
+    h1Btn.addEventListener("click", sideForms.addRect);
+    h1Btn.innerHTML = "見出し1";
+    h1Btn.value = H1_TYPE;
+    h1Btn.style.margin = BUTTON_MARGIN;
+
+    const h2Btn = document.createElement("button");
+    this.#controlBarObject.appendChild(h2Btn);
+    h2Btn.addEventListener("click", sideForms.addRect);
+    h2Btn.innerHTML = "見出し2";
+    h2Btn.value = H2_TYPE;
+    h2Btn.style.margin = BUTTON_MARGIN;
+
+    const bodyBtn = document.createElement("button");
+    this.#controlBarObject.appendChild(bodyBtn);
+    bodyBtn.addEventListener("click", sideForms.addRect);
+    bodyBtn.innerHTML = "本文";
+    bodyBtn.style.margin = BUTTON_MARGIN;
+
+    const imageBtn = document.createElement("button");
+    this.#controlBarObject.appendChild(imageBtn);
+    imageBtn.addEventListener("click", sideForms.addImage);
+    imageBtn.innerHTML = "静止画";
+    imageBtn.style.margin = BUTTON_MARGIN;
+
+    const videoBtn = document.createElement("button");
+    this.#controlBarObject.appendChild(videoBtn);
+    videoBtn.addEventListener("click", sideForms.addVideoPlayer);
+    videoBtn.innerHTML = "動画";
+    videoBtn.style.margin = BUTTON_MARGIN;
+
+    // スタンプを追加するボタンを生成する
+    const stampTitle = document.createElement("label");
+    this.#controlBarObject.appendChild(stampTitle);
+    stampTitle.innerHTML = "スタンプ: ";
+    stampTitle.style.margin = BUTTON_MARGIN;
+
+    const smileStampBtn = document.createElement("button");
+    this.#controlBarObject.appendChild(smileStampBtn);
+    smileStampBtn.addEventListener("click", sideForms.addSmileStamp);
+    smileStampBtn.innerHTML = "スマイル";
+    smileStampBtn.style.margin = BUTTON_MARGIN;
+
+    const doneStampBtn = document.createElement("button");
+    this.#controlBarObject.appendChild(doneStampBtn);
+    doneStampBtn.addEventListener("click", sideForms.addDoneStamp);
+    doneStampBtn.innerHTML = "済み";
+    doneStampBtn.style.margin = BUTTON_MARGIN;
+
+    // 再描画するボタンを生成する
+    const renderTitle = document.createElement("label");
+    this.#controlBarObject.appendChild(renderTitle);
+    renderTitle.innerHTML = "再描画: ";
+    renderTitle.style.margin = BUTTON_MARGIN;
+
+    const renderInitialBtn = document.createElement("button");
+    this.#controlBarObject.appendChild(renderInitialBtn);
+    renderInitialBtn.addEventListener("click", sideForms.drawInitial);
+    renderInitialBtn.innerHTML = "初期値";
+    renderInitialBtn.style.margin = BUTTON_MARGIN;
+
+    const renderEditedBtn = document.createElement("button");
+    this.#controlBarObject.appendChild(renderEditedBtn);
+    renderEditedBtn.addEventListener("click", sideForms.drawEdited);
+    renderEditedBtn.innerHTML = "編集中";
+    renderEditedBtn.style.margin = BUTTON_MARGIN;
+
+    // 再描画するボタンを生成する
+    const resetTitle = document.createElement("label");
+    this.#controlBarObject.appendChild(resetTitle);
+    resetTitle.innerHTML = "初期化: ";
+    resetTitle.style.margin = BUTTON_MARGIN;
+
+    const resetEditedBtn = document.createElement("button");
+    this.#controlBarObject.appendChild(resetEditedBtn);
+    resetEditedBtn.addEventListener("click", sideForms.resetEdited);
+    resetEditedBtn.innerHTML = "リセット";
+    resetEditedBtn.style.margin = BUTTON_MARGIN;
   }
 
   // ラジオボタンの値の更新
@@ -553,137 +672,159 @@ class SideForms {
 
   // 編集中の値を編集する
   // ----------------------------------------
-  // H1 見出しブロックを追加する
-  addH1() {
-    if (!this.#isEditing) {
+  // 文書構造を追加する
+  addRect(e) {
+    const page = canvasPage;
+    const forms = sideForms;
+    const draft = page.getDraft();
+    if (!page.getIsEditing()) {
       return;
     }
-    const y = this.#calcRectYPosition(this.#draft.sections.length);
-    this.#draft.sections.push({
-      heading: H1_TYPE,
-      text: "H1",
-      rect: { x: 0, y: y, w: FULL_WIDTH, h: H1_SIZE + PADDING },
-      stroke: STROKE_RED,
-    });
-    this.drawEdited();
-  }
-  // H2 見出しブロックを追加する
-  addH2() {
-    if (!this.#isEditing) {
-      return;
-    }
-    const y = this.#calcRectYPosition(this.#draft.sections.length);
-    this.#draft.sections.push({
-      heading: H2_TYPE,
-      text: "H2",
-      rect: { x: 0, y: y, w: FULL_WIDTH, h: H2_SIZE + PADDING },
-      stroke: STROKE_RED,
-    });
-    this.drawEdited();
-  }
-  // 本文ブロックを追加する
-  addRect() {
-    if (!this.#isEditing) {
-      return;
-    }
-    const y = this.#calcRectYPosition(this.#draft.sections.length);
-    this.#draft.sections.push({
+
+    const y = forms.#calcRectYPosition(forms.#draft.sections.length);
+    const rect = {
       text: "content",
       rect: { x: 0, y: y, w: FULL_WIDTH, h: DEFAULT_SIZE + MARGIN },
       stroke: STROKE_RED,
-    });
-    this.drawEdited();
+    };
+
+    const type = e.target.value;
+    switch (type) {
+      case H1_TYPE:
+        // H1 見出しブロックを追加する
+        rect.heading = type;
+        rect.text = "H1";
+        rect.rect.h = H1_SIZE + MARGIN;
+        break;
+      case H2_TYPE:
+        // H2 見出しブロックを追加する
+        rect.heading = type;
+        rect.text = "H2";
+        rect.rect.h = H2_SIZE + MARGIN;
+        break;
+      default:
+        // 本文ブロックを追加する
+        break;
+    }
+
+    forms.#draft.sections.push(rect);
+    forms.drawEdited();
   }
 
   // 動画プレーヤーブロックを追加する
   addImage() {
-    if (!this.#isEditing) {
+    const page = canvasPage;
+    const forms = sideForms;
+    const draft = page.getDraft();
+    if (!page.getIsEditing()) {
       return;
     }
-    const y = this.#calcRectYPosition(this.#draft.sections.length);
-    this.#draft.sections.push({
+    const y = forms.#calcRectYPosition(forms.#draft.sections.length);
+    forms.#draft.sections.push({
       text: "image placeholder",
       url: "https://example.com/test.png",
       rect: { x: 0, y: y, w: 400, h: 250 },
       fill: FILL_PURPLE,
     });
-    this.drawEdited();
+    forms.drawEdited();
   }
   // 動画プレーヤーブロックを追加する
   addVideoPlayer() {
-    if (!this.#isEditing) {
+    const page = canvasPage;
+    const forms = sideForms;
+    const draft = page.getDraft();
+    if (!page.getIsEditing()) {
       return;
     }
-    const y = this.#calcRectYPosition(this.#draft.sections.length);
-    this.#draft.sections.push({
+    const y = forms.#calcRectYPosition(forms.#draft.sections.length);
+    forms.#draft.sections.push({
       text: "video player placeholder",
       url: "https://example.com/test.png",
       rect: { x: 0, y: y, w: 400, h: 250 },
       fill: FILL_PURPLE,
     });
-    this.drawEdited();
+    forms.drawEdited();
   }
 
   // スタンプ (スマイル) を追加する
   addSmileStamp() {
-    if (!this.#isEditing) {
+    const page = canvasPage;
+    const forms = sideForms;
+    const draft = page.getDraft();
+    if (!page.getIsEditing()) {
       return;
     }
-    this.#stampsDraft.stamps.push({ arc: SMILE_MARK_STAMP, stroke: FONT_RED });
-    this.drawEdited();
+    forms.#stampsDraft.stamps.push({ arc: SMILE_MARK_STAMP, stroke: FONT_RED });
+    forms.drawEdited();
   }
   // スタンプ (済み) を追加する
   addDoneStamp() {
-    if (!this.#isEditing) {
+    const page = canvasPage;
+    const forms = sideForms;
+    const draft = page.getDraft();
+    if (!page.getIsEditing()) {
       return;
     }
-    this.#stampsDraft.stamps.push({
+    forms.#stampsDraft.stamps.push({
       text: "済",
       arc: DONE_MARK_STAMP,
       stroke: FONT_RED,
     });
-    this.drawEdited();
+    forms.drawEdited();
   }
 
   // Canvas へ data を再描画する
   // ----------------------------------------
   drawInitial() {
-    if (!this.#isEditing) {
+    const page = canvasPage;
+    const forms = sideForms;
+    const draft = page.getDraft();
+    if (!page.getIsEditing()) {
       return;
     }
     document.getElementById("tutorial").getContext("2d").reset();
-    this.#canvasPage.setData(this.#canvasPage.getInitial());
-    this.#canvasPage.setStampsData(this.#canvasPage.getStampsInitial());
-    this.#canvasPage.draw();
-    this.showForms();
+    forms.#canvasPage.setData(forms.#canvasPage.getInitial());
+    forms.#canvasPage.setStampsData(forms.#canvasPage.getStampsInitial());
+    forms.#canvasPage.draw();
+    forms.showForms();
   }
   drawEdited() {
-    if (!this.#isEditing) {
+    const page = canvasPage;
+    const forms = sideForms;
+    const draft = page.getDraft();
+    if (!page.getIsEditing()) {
       return;
     }
     document.getElementById("tutorial").getContext("2d").reset();
-    this.#draft.height = this.#calcRectYPosition(this.#draft.sections.length);
-    this.#canvasPage.setData(this.#canvasPage.getDraft());
-    this.#canvasPage.setStampsData(this.#canvasPage.getStampsDraft());
-    this.#canvasPage.draw();
-    this.showForms();
+    forms.#draft.height = forms.#calcRectYPosition(
+      forms.#draft.sections.length
+    );
+    forms.#canvasPage.setData(forms.#canvasPage.getDraft());
+    forms.#canvasPage.setStampsData(forms.#canvasPage.getStampsDraft());
+    forms.#canvasPage.draw();
+    forms.showForms();
   }
 
   // 編集内容をリセットする
   resetEdited() {
-    if (!this.#isEditing) {
+    const page = canvasPage;
+    const forms = sideForms;
+    const draft = page.getDraft();
+    if (!page.getIsEditing()) {
       return;
     }
     // レイアウト
-    this.#draft = JSON.parse(JSON.stringify(this.#canvasPage.getInitial()));
-    this.#draft.height = this.#calcRectYPosition(this.#draft.sections.length);
-    this.#canvasPage.setDraft(this.#draft);
-    // スタンプ
-    this.#stampsDraft = JSON.parse(
-      JSON.stringify(this.#canvasPage.getStampsInitial())
+    forms.#draft = JSON.parse(JSON.stringify(forms.#canvasPage.getInitial()));
+    forms.#draft.height = forms.#calcRectYPosition(
+      forms.#draft.sections.length
     );
-    this.#canvasPage.setStampsDraft(this.#stampsDraft);
-    this.#canvasPage.draw();
-    this.showForms();
+    forms.#canvasPage.setDraft(forms.#draft);
+    // スタンプ
+    forms.#stampsDraft = JSON.parse(
+      JSON.stringify(forms.#canvasPage.getStampsInitial())
+    );
+    forms.#canvasPage.setStampsDraft(forms.#stampsDraft);
+    forms.#canvasPage.draw();
+    forms.showForms();
   }
 }

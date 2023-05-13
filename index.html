@@ -27,23 +27,6 @@
       <main>
         <canvas id="tutorial"></canvas>
       </main>
-      <aside id="config-forms"></aside>
-    </div>
-    <div id="elements-control-bar">
-      <label>末尾に追加: </label>
-      <button onclick="sideForms.addH1();">見出し 1</button>
-      <button onclick="sideForms.addH2();">見出し 2</button>
-      <button onclick="sideForms.addRect();">本文</button>
-      <button onclick="sideForms.addImage();">静止画</button>
-      <button onclick="sideForms.addVideoPlayer();">動画</button>
-      <label>スタンプ: </label>
-      <button onclick="sideForms.addSmileStamp();">スマイル</button>
-      <button onclick="sideForms.addDoneStamp();">済み</button>
-      <label>再描画: </label>
-      <button onclick="sideForms.drawInitial();">初期値</button>
-      <button onclick="sideForms.drawEdited();">編集中</button>
-      <label>初期化: </label>
-      <button onclick="sideForms.resetEdited();">リセット</button>
     </div>
 
     <script>
@@ -54,13 +37,11 @@
         let isEditing = false;
 
         // ページ描画
-        const node = document.getElementById("tutorial");
+        const node = document.getElementById(CANVAS_ID);
         canvasPage = new CanvasPage(node, initial, stamps_initial, isEditing);
         canvasPage.draw();
         // 編集エリア生成
-        const aside = document.getElementById("config-forms");
-        const controlBar = document.getElementById("elements-control-bar");
-        sideForms = new SideForms(canvasPage, aside, controlBar);
+        sideForms = new SideForms(canvasPage);
         sideForms.showForms();
 
         // モードを切り替えた場合

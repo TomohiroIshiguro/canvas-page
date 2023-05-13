@@ -1,3 +1,15 @@
+// 画面要素
+// ----------------------------------------
+
+// CanvasPage の Flex コンテナ
+const FLEX_ROW_CONTAINER_ID = "row";
+// CanvasPage
+const CANVAS_ID = "tutorial";
+// サイドフォーム
+const ASIDE_FORMS_ID = "config-forms";
+// コントロール バー
+const CONTROL_BAR_ID = "elements-control-bar";
+
 // スタイル (CanvasPage)
 // ----------------------------------------
 const FULL_WIDTH = 900; // px
@@ -52,3 +64,8 @@ const CONFIG_ITEM_MARGIN = "5px 0 0 " + CONFIG_ITEM_MARGIN_LEFT + "px";
 
 const MANUAL_RADIO_GROUP_NAME = "is_manual";
 const MANUAL_INITIAL = false;
+
+//　スタイル (ControlBar)
+// ----------------------------------------
+
+const BUTTON_MARGIN = "0 5px 0 0";
