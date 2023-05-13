@@ -1,16 +1,16 @@
 // 画面要素
 // ----------------------------------------
 
-// CanvasPage の Flex コンテナ
+// CanvasView の Flex コンテナ
 const FLEX_ROW_CONTAINER_ID = "row";
-// CanvasPage
+// CanvasView
 const CANVAS_ID = "tutorial";
 // サイドフォーム
 const ASIDE_FORMS_ID = "config-forms";
 // コントロール バー
 const CONTROL_BAR_ID = "elements-control-bar";
 
-// スタイル (CanvasPage)
+// スタイル (CanvasView)
 // ----------------------------------------
 const FULL_WIDTH = 900; // px
 const MIN_HEIGHT = 1000; // px

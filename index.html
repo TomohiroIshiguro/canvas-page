@@ -7,7 +7,7 @@
   </head>
 
   <body onload="main();">
-    <h1>Canvas page</h1>
+    <h1>Canvas view</h1>
     <p>
       以下の背景色が黄色い領域が Canvas です。<br />
       <label>モード:</label>
@@ -30,7 +30,7 @@
     </div>
 
     <script>
-      var canvasPage;
+      var canvasView;
       var sideForms;
 
       function main() {
@@ -38,10 +38,10 @@
 
         // ページ描画
         const node = document.getElementById(CANVAS_ID);
-        canvasPage = new CanvasPage(node, initial, stamps_initial, isEditing);
-        canvasPage.draw();
+        canvasView = new CanvasView(node, initial, stamps_initial, isEditing);
+        canvasView.draw();
         // 編集エリア生成
-        sideForms = new SideForms(canvasPage);
+        sideForms = new SideForms(canvasView);
         sideForms.showForms();
 
         // モードを切り替えた場合
@@ -51,8 +51,8 @@
         for (el of radios) {
           el.addEventListener("change", (e) => {
             isEditing = e.target.value == "edit";
-            canvasPage.setIsEditing(isEditing);
-            canvasPage.draw();
+            canvasView.setIsEditing(isEditing);
+            canvasView.draw();
             sideForms.showForms();
           });
         }
@@ -63,7 +63,7 @@
         });
       }
     </script>
-    <script src="./canvas-page.js"></script>
+    <script src="./canvas-view.js"></script>
     <script src="./aside-forms.js"></script>
     <script src="./constants.js"></script>
     <script src="./sample-data.js"></script>

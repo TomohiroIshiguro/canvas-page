@@ -1,6 +1,6 @@
 // クラス
 class SideForms {
-  #canvasPage;
+  #canvasView;
   #canvasRowObject;
 
   // Canvas ビュー
@@ -25,10 +25,10 @@ class SideForms {
 
   // コンストラクタ
   // ----------------------------------------
-  constructor(canvasPage, aside, controlBar) {
-    this.#canvasPage = canvasPage;
+  constructor(canvasView, aside, controlBar) {
+    this.#canvasView = canvasView;
     this.#canvasRowObject = document.getElementById(FLEX_ROW_CONTAINER_ID);
-    this.#canvasViewObject = this.#canvasPage.getCanvasObject();
+    this.#canvasViewObject = this.#canvasView.getCanvasObject();
     this.#asideObject = aside;
     this.#controlBarObject = controlBar;
 
@@ -45,7 +45,7 @@ class SideForms {
     this.#controlBarObject = document.getElementById(CONTROL_BAR_ID);
 
     // 表示モード時にはフォームを削除する
-    this.#isEditing = this.#canvasPage.getIsEditing();
+    this.#isEditing = this.#canvasView.getIsEditing();
     if (!this.#isEditing) {
       if (this.#asideObject) {
         this.#asideObject.remove();
@@ -68,8 +68,8 @@ class SideForms {
       this.#controlBarObject.id = CONTROL_BAR_ID;
     }
 
-    this.#draft = this.#canvasPage.getDraft();
-    this.#stampsDraft = this.#canvasPage.getStampsDraft();
+    this.#draft = this.#canvasView.getDraft();
+    this.#stampsDraft = this.#canvasView.getStampsDraft();
     this.#createAsideForms();
     this.#createControlBar();
   }
@@ -423,7 +423,7 @@ class SideForms {
   }
 
   // type を編集した際の rect の高さ、後続の要素の描画位置をリセットする
-  #resetRectYPosition(page, draft, index) {
+  #resetRectYPosition(view, draft, index) {
     for (let i = parseInt(index) + 1; i < draft.sections.length; i++) {
       if (
         draft.sections[i - 1] &&
@@ -545,7 +545,7 @@ class SideForms {
 
   // サイズ編集フォームの表示非表示を変更するイベントリスナー
   changeRadio(e) {
-    const page = canvasPage;
+    const view = canvasView;
     const forms = sideForms;
 
     forms.#isManual = e.target.value == "On";
@@ -557,9 +557,9 @@ class SideForms {
 
   // 編集した要素の type を更新するイベントリスナー
   static changeType(e) {
-    const page = canvasPage;
+    const view = canvasView;
     const forms = sideForms;
-    const draft = page.getDraft();
+    const draft = view.getDraft();
 
     const index = e.target.id.replace("rectType", "");
     draft.sections[index].heading = document.getElementById(e.target.id).value;
@@ -576,15 +576,15 @@ class SideForms {
         break;
     }
 
-    forms.#resetRectYPosition(page, draft, index);
+    forms.#resetRectYPosition(view, draft, index);
     forms.drawEdited();
   }
 
   // 編集した要素の text を更新するイベントリスナー
   static changeText(e) {
-    const page = canvasPage;
+    const view = canvasView;
     const forms = sideForms;
-    const draft = page.getDraft();
+    const draft = view.getDraft();
 
     const index = e.target.id.replace("rectText", "");
     draft.sections[index].text = document.getElementById(e.target.id).value;
@@ -601,72 +601,72 @@ class SideForms {
         break;
     }
 
-    forms.#resetRectYPosition(page, draft, index);
+    forms.#resetRectYPosition(view, draft, index);
     forms.drawEdited();
   }
 
   // 編集した要素の url を更新するイベントリスナー
   static changeUrl(e) {
-    const page = canvasPage;
+    const view = canvasView;
     const forms = sideForms;
-    const draft = page.getDraft();
+    const draft = view.getDraft();
 
     const index = e.target.id.replace("rectUrl", "");
     draft.sections[index].url = document.getElementById(e.target.id).value;
 
-    forms.#resetRectYPosition(page, draft, index);
+    forms.#resetRectYPosition(view, draft, index);
     forms.drawEdited();
   }
 
   // 編集した要素の x position を更新するイベントリスナー
   static changeXPos(e) {
-    const page = canvasPage;
+    const view = canvasView;
     const forms = sideForms;
-    const draft = page.getDraft();
+    const draft = view.getDraft();
 
     const index = e.target.id.replace("rectXPos", "");
     draft.sections[index].rect.x = document.getElementById(e.target.id).value;
 
-    forms.#resetRectYPosition(page, draft, index);
+    forms.#resetRectYPosition(view, draft, index);
     forms.drawEdited();
   }
 
   // 編集した要素の y position を更新するイベントリスナー
   static changeYPos(e) {
-    const page = canvasPage;
+    const view = canvasView;
     const forms = sideForms;
-    const draft = page.getDraft();
+    const draft = view.getDraft();
 
     const index = e.target.id.replace("rectYPos", "");
     draft.sections[index].rect.y = document.getElementById(e.target.id).value;
 
-    forms.#resetRectYPosition(page, draft, index);
+    forms.#resetRectYPosition(view, draft, index);
     forms.drawEdited();
   }
 
   // 編集した要素の width を更新するイベントリスナー
   static changeWidth(e) {
-    const page = canvasPage;
+    const view = canvasView;
     const forms = sideForms;
-    const draft = page.getDraft();
+    const draft = view.getDraft();
 
     const index = e.target.id.replace("rectWidth", "");
     draft.sections[index].rect.w = document.getElementById(e.target.id).value;
 
-    forms.#resetRectYPosition(page, draft, index);
+    forms.#resetRectYPosition(view, draft, index);
     forms.drawEdited();
   }
 
   // 編集した要素の height を更新するイベントリスナー
   static changeHeight(e) {
-    const page = canvasPage;
+    const view = canvasView;
     const forms = sideForms;
-    const draft = page.getDraft();
+    const draft = view.getDraft();
 
     const index = e.target.id.replace("rectHeight", "");
     draft.sections[index].rect.h = document.getElementById(e.target.id).value;
 
-    forms.#resetRectYPosition(page, draft, index);
+    forms.#resetRectYPosition(view, draft, index);
     forms.drawEdited();
   }
 
@@ -674,10 +674,10 @@ class SideForms {
   // ----------------------------------------
   // 文書構造を追加する
   addRect(e) {
-    const page = canvasPage;
+    const view = canvasView;
     const forms = sideForms;
-    const draft = page.getDraft();
-    if (!page.getIsEditing()) {
+    const draft = view.getDraft();
+    if (!view.getIsEditing()) {
       return;
     }
 
@@ -713,10 +713,10 @@ class SideForms {
 
   // 動画プレーヤーブロックを追加する
   addImage() {
-    const page = canvasPage;
+    const view = canvasView;
     const forms = sideForms;
-    const draft = page.getDraft();
-    if (!page.getIsEditing()) {
+    const draft = view.getDraft();
+    if (!view.getIsEditing()) {
       return;
     }
     const y = forms.#calcRectYPosition(forms.#draft.sections.length);
@@ -730,10 +730,10 @@ class SideForms {
   }
   // 動画プレーヤーブロックを追加する
   addVideoPlayer() {
-    const page = canvasPage;
+    const view = canvasView;
     const forms = sideForms;
-    const draft = page.getDraft();
-    if (!page.getIsEditing()) {
+    const draft = view.getDraft();
+    if (!view.getIsEditing()) {
       return;
     }
     const y = forms.#calcRectYPosition(forms.#draft.sections.length);
@@ -748,10 +748,10 @@ class SideForms {
 
   // スタンプ (スマイル) を追加する
   addSmileStamp() {
-    const page = canvasPage;
+    const view = canvasView;
     const forms = sideForms;
-    const draft = page.getDraft();
-    if (!page.getIsEditing()) {
+    const draft = view.getDraft();
+    if (!view.getIsEditing()) {
       return;
     }
     forms.#stampsDraft.stamps.push({ arc: SMILE_MARK_STAMP, stroke: FONT_RED });
@@ -759,10 +759,10 @@ class SideForms {
   }
   // スタンプ (済み) を追加する
   addDoneStamp() {
-    const page = canvasPage;
+    const view = canvasView;
     const forms = sideForms;
-    const draft = page.getDraft();
-    if (!page.getIsEditing()) {
+    const draft = view.getDraft();
+    if (!view.getIsEditing()) {
       return;
     }
     forms.#stampsDraft.stamps.push({
@@ -776,55 +776,55 @@ class SideForms {
   // Canvas へ data を再描画する
   // ----------------------------------------
   drawInitial() {
-    const page = canvasPage;
+    const view = canvasView;
     const forms = sideForms;
-    const draft = page.getDraft();
-    if (!page.getIsEditing()) {
+    const draft = view.getDraft();
+    if (!view.getIsEditing()) {
       return;
     }
     document.getElementById("tutorial").getContext("2d").reset();
-    forms.#canvasPage.setData(forms.#canvasPage.getInitial());
-    forms.#canvasPage.setStampsData(forms.#canvasPage.getStampsInitial());
-    forms.#canvasPage.draw();
+    forms.#canvasView.setData(forms.#canvasView.getInitial());
+    forms.#canvasView.setStampsData(forms.#canvasView.getStampsInitial());
+    forms.#canvasView.draw();
     forms.showForms();
   }
   drawEdited() {
-    const page = canvasPage;
+    const view = canvasView;
     const forms = sideForms;
-    const draft = page.getDraft();
-    if (!page.getIsEditing()) {
+    const draft = view.getDraft();
+    if (!view.getIsEditing()) {
       return;
     }
     document.getElementById("tutorial").getContext("2d").reset();
     forms.#draft.height = forms.#calcRectYPosition(
       forms.#draft.sections.length
     );
-    forms.#canvasPage.setData(forms.#canvasPage.getDraft());
-    forms.#canvasPage.setStampsData(forms.#canvasPage.getStampsDraft());
-    forms.#canvasPage.draw();
+    forms.#canvasView.setData(forms.#canvasView.getDraft());
+    forms.#canvasView.setStampsData(forms.#canvasView.getStampsDraft());
+    forms.#canvasView.draw();
     forms.showForms();
   }
 
   // 編集内容をリセットする
   resetEdited() {
-    const page = canvasPage;
+    const view = canvasView;
     const forms = sideForms;
-    const draft = page.getDraft();
-    if (!page.getIsEditing()) {
+    const draft = view.getDraft();
+    if (!view.getIsEditing()) {
       return;
     }
     // レイアウト
-    forms.#draft = JSON.parse(JSON.stringify(forms.#canvasPage.getInitial()));
+    forms.#draft = JSON.parse(JSON.stringify(forms.#canvasView.getInitial()));
     forms.#draft.height = forms.#calcRectYPosition(
       forms.#draft.sections.length
     );
-    forms.#canvasPage.setDraft(forms.#draft);
+    forms.#canvasView.setDraft(forms.#draft);
     // スタンプ
     forms.#stampsDraft = JSON.parse(
-      JSON.stringify(forms.#canvasPage.getStampsInitial())
+      JSON.stringify(forms.#canvasView.getStampsInitial())
     );
-    forms.#canvasPage.setStampsDraft(forms.#stampsDraft);
-    forms.#canvasPage.draw();
+    forms.#canvasView.setStampsDraft(forms.#stampsDraft);
+    forms.#canvasView.draw();
     forms.showForms();
   }
 }

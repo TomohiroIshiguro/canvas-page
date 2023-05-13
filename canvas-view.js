@@ -1,5 +1,5 @@
 // クラス
-class CanvasPage {
+class CanvasView {
   #canvas;
 
   // 初期値、編集中の値
@@ -48,7 +48,7 @@ class CanvasPage {
     this.#isEditing = isEditing;
   }
 
-  // 編集モードで CanvasPage のデータを取得する
+  // 編集モードで CanvasView のデータを取得する
   getInitial() {
     return this.#initial;
   }
